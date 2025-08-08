@@ -99,86 +99,84 @@ export default function BlogPage() {
 
         {/* Featured Post */}
         {featuredPost && (
-          <section className="mb-16">
-            <Card className="overflow-hidden border-t-4 border-t-blue-500 hover:shadow-xl transition-shadow">
-              <div className="grid lg:grid-cols-2 gap-0">
-                <div className="relative">
-                  {featuredPost.images && featuredPost.images.length > 0 ? (
-                    <div className="relative">
+          <Link href={`/blog/${featuredPost._id}`} key={featuredPost._id}>
+            <section className="mb-16">
+              <Card className="overflow-hidden border-t-4 border-t-blue-500 hover:shadow-xl transition-shadow">
+                <div className="grid lg:grid-cols-2 gap-0">
+                  <div className="relative">
+                    {featuredPost.images && featuredPost.images.length > 0 ? (
+                      <div className="relative">
+                        <Image
+                          src={featuredPost.images[0].url}
+                          alt={featuredPost.title}
+                          width={800}
+                          height={400}
+                          className="w-full h-64 lg:h-full object-cover"
+                        />
+                        {featuredPost.images.length > 1 && (
+                          <div className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
+                            +{featuredPost.images.length - 1} more
+                          </div>
+                        )}
+                      </div>
+                    ) : (
                       <Image
-                        src={featuredPost.images[0].url}
+                        src="/placeholder.svg"
                         alt={featuredPost.title}
                         width={800}
                         height={400}
                         className="w-full h-64 lg:h-full object-cover"
                       />
-                      {featuredPost.images.length > 1 && (
-                        <div className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
-                          +{featuredPost.images.length - 1} more
-                        </div>
-                      )}
+                    )}
+                    <div className="absolute top-4 left-4">
+                      <Badge className="bg-blue-500">Featured</Badge>
                     </div>
-                  ) : (
-                    <Image
-                      src="/placeholder.svg"
-                      alt={featuredPost.title}
-                      width={800}
-                      height={400}
-                      className="w-full h-64 lg:h-full object-cover"
-                    />
-                  )}
-                  <div className="absolute top-4 left-4">
-                    <Badge className="bg-blue-500">Featured</Badge>
                   </div>
-                </div>
-                <div className="p-8 flex flex-col justify-center">
-                  <div className="mb-4">
-                    <Badge variant="outline">{featuredPost.category}</Badge>
-                  </div>
-                  <h2 className="text-2xl font-bold mb-4 text-slate-900 hover:text-blue-600 transition-colors">
-                    <Link href={`/blog/${featuredPost._id}`}>
+                  <div className="p-8 flex flex-col justify-center">
+                    <div className="mb-4">
+                      <Badge variant="outline">{featuredPost.category}</Badge>
+                    </div>
+                    <h2 className="text-2xl font-bold mb-4 text-slate-900 hover:text-blue-600 transition-colors">
                       {featuredPost.title}
-                    </Link>
-                  </h2>
-                  <p className="text-gray-600 mb-6 leading-relaxed">
-                    {featuredPost.excerpt}
-                  </p>
-                  <div className="flex items-center gap-6 text-sm text-gray-500 mb-6">
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      <span>{featuredPost.author}</span>
+                    </h2>
+                    <p className="text-gray-600 mb-6 leading-relaxed">
+                      {featuredPost.excerpt}
+                    </p>
+                    <div className="flex items-center gap-6 text-sm text-gray-500 mb-6">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        <span>{featuredPost.author}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        <span>{new Date(featuredPost.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        <span>{featuredPost.readTime}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      <span>{new Date(featuredPost.createdAt).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      <span>{featuredPost.readTime}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Button className="bg-blue-600 hover:bg-blue-700" asChild>
-                      <Link href={`/blog/${featuredPost._id}`}>
+                    <div className="flex items-center justify-between">
+                      <Button className="bg-blue-600 hover:bg-blue-700" asChild>
                         Read More
                         <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <Eye className="h-4 w-4" />
-                        <span>{featuredPost.views}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Heart className="h-4 w-4" />
-                        <span>{featuredPost.likes}</span>
+                      </Button>
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Eye className="h-4 w-4" />
+                          <span>{featuredPost.views}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Heart className="h-4 w-4" />
+                          <span>{featuredPost.likes}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </Card>
-          </section>
+              </Card>
+            </section>
+          </Link>
         )}
 
         <div className="grid lg:grid-cols-4 gap-8">
@@ -197,79 +195,79 @@ export default function BlogPage() {
             ) : (
               <div className="grid md:grid-cols-2 gap-6">
                 {regularPosts.map((post: BlogPost) => (
-                  <Card key={post._id} className="group hover:shadow-lg transition-all duration-300">
-                    <CardHeader className="p-0">
-                      <div className="relative overflow-hidden rounded-t-lg">
-                        {post.images && post.images.length > 0 ? (
-                          <div className="relative">
+                  <Link href={`/blog/${post._id}`} key={post._id}>
+                    <Card key={post._id} className="group hover:shadow-lg transition-all duration-300">
+                      <CardHeader className="p-0">
+                        <div className="relative overflow-hidden rounded-t-lg">
+                          {post.images && post.images.length > 0 ? (
+                            <div className="relative">
+                              <Image
+                                src={post.images[0].url}
+                                alt={post.title}
+                                width={400}
+                                height={200}
+                                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                              {post.images.length > 1 && (
+                                <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+                                  +{post.images.length - 1}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
                             <Image
-                              src={post.images[0].url}
+                              src="/placeholder.svg"
                               alt={post.title}
                               width={400}
                               height={200}
                               className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                             />
-                            {post.images.length > 1 && (
-                              <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
-                                +{post.images.length - 1}
-                              </div>
-                            )}
+                          )}
+                          <div className="absolute top-3 left-3">
+                            <Badge variant="outline" className="bg-white/90">
+                              {post.category}
+                            </Badge>
                           </div>
-                        ) : (
-                          <Image
-                            src="/placeholder.svg"
-                            alt={post.title}
-                            width={400}
-                            height={200}
-                            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        )}
-                        <div className="absolute top-3 left-3">
-                          <Badge variant="outline" className="bg-white/90">
-                            {post.category}
-                          </Badge>
                         </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      <CardTitle className="text-lg mb-3 group-hover:text-blue-600 transition-colors">
-                        <Link href={`/blog/${post._id}`}>
+                      </CardHeader>
+                      <CardContent className="p-6">
+                        <CardTitle className="text-lg mb-3 group-hover:text-blue-600 transition-colors">
                           {post.title}
-                        </Link>
-                      </CardTitle>
-                      <CardDescription className="text-gray-600 mb-4 leading-relaxed">
-                        {post.excerpt}
-                      </CardDescription>
+                        </CardTitle>
+                        <CardDescription className="text-gray-600 mb-4 leading-relaxed">
+                          {post.excerpt}
+                        </CardDescription>
 
-                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                        <div className="flex items-center gap-1">
-                          <User className="h-3 w-3" />
-                          <span>{post.author}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
-                          <Clock className="h-3 w-3" />
-                          <span>{post.readTime}</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-500">
+                        <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
                           <div className="flex items-center gap-1">
-                            <Eye className="h-3 w-3" />
-                            <span>{post.views}</span>
+                            <User className="h-3 w-3" />
+                            <span>{post.author}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Heart className="h-3 w-3" />
-                            <span>{post.likes}</span>
+                            <Calendar className="h-3 w-3" />
+                            <span>{new Date(post.createdAt).toLocaleDateString()}</span>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1 text-sm text-gray-500">
+                            <Clock className="h-3 w-3" />
+                            <span>{post.readTime}</span>
+                          </div>
+                          <div className="flex items-center gap-3 text-sm text-gray-500">
+                            <div className="flex items-center gap-1">
+                              <Eye className="h-3 w-3" />
+                              <span>{post.views}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Heart className="h-3 w-3" />
+                              <span>{post.likes}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
               </div>
             )}
