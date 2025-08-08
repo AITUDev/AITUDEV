@@ -10,9 +10,11 @@ import { Activity, ArrowUpRight, Calendar, Clock, Code, GitBranch, Globe, MoreHo
 import { AddProjectForm } from '@/dashboard/components/add-project-form'
 import { AddTeamMemberForm } from '@/dashboard/components/add-team-member-form'
 import AddEventForm from '@/dashboard/components/add-event-form'
+import { AddBlogForm } from '@/dashboard/components/add-blog-form'
 import { useProjects } from '@/hooks/useProjects'
 import { useTeamMembers } from '@/hooks/useTeamMembers'
 import { useEvents } from '@/hooks/useEvents'
+import { useBlog, BlogPost } from '@/hooks/useBlog'
 import Image from 'next/image'
 
 interface Activity {
@@ -162,10 +164,12 @@ export default function DashboardPage() {
   const { projects, loading: projectsLoading, deleteProject } = useProjects()
   const { teamMembers, loading: teamLoading, deleteTeamMember } = useTeamMembers()
   const { events, loading: eventsLoading, deleteEvent } = useEvents()
-  
+  const { posts: blogs, loading: blogsLoading, deletePost: deleteBlog } = useBlog() 
+
   const [showAddProject, setShowAddProject] = useState(false)
   const [showAddMember, setShowAddMember] = useState(false)
   const [showAddEvent, setShowAddEvent] = useState(false)
+  const [showAddBlog, setShowAddBlog] = useState(false)   
 
   // Calculate real statistics from database data
   const activeProjects = projects.filter(p => p.status === 'active').length
@@ -173,19 +177,36 @@ export default function DashboardPage() {
   const activeMembers = teamMembers.filter(m => m.status === 'active').length
   const upcomingEvents = events.filter(e => !e.isCompleted && new Date(e.date) >= new Date()).length
   const completedEvents = events.filter(e => e.isCompleted).length
-  
+
+
   // Calculate average project progress
   const totalProgress = projects.reduce((sum, project) => sum + (project.progress || 0), 0)
   const averageProgress = projects.length > 0 ? Math.round(totalProgress / projects.length) : 0
 
   // Generate recent activity from actual data
   const recentActivities: Activity[] = []
-  
+
+  // Add recent blogs (last 2)
+  const recentBlogs = blogs
+    .sort((a, b) => new Date(b.createdAt || b.updatedAt).getTime() - new Date(a.createdAt || a.updatedAt).getTime())
+    .slice(0, 2)
+
+  recentBlogs.forEach(blog => {
+    const timeAgo = getTimeAgo(blog.createdAt || blog.updatedAt)
+    recentActivities.push({
+      id: `blog-${blog._id}`,
+      user: 'AITU Dev Team',
+      action: `published blog "${blog.title}"`,
+      time: timeAgo,
+      type: 'blog'
+    })
+  })
+
   // Add recent projects (last 3)
   const recentProjects = projects
     .sort((a, b) => new Date(b.createdAt || b.updatedAt).getTime() - new Date(a.createdAt || a.updatedAt).getTime())
     .slice(0, 2)
-  
+
   recentProjects.forEach(project => {
     const timeAgo = getTimeAgo(project.createdAt || project.updatedAt)
     recentActivities.push({
@@ -201,7 +222,7 @@ export default function DashboardPage() {
   const recentMembers = teamMembers
     .sort((a, b) => new Date(b.createdAt || b.updatedAt).getTime() - new Date(a.createdAt || a.updatedAt).getTime())
     .slice(0, 2)
-  
+
   recentMembers.forEach(member => {
     const timeAgo = getTimeAgo(member.createdAt || member.updatedAt)
     recentActivities.push({
@@ -217,7 +238,7 @@ export default function DashboardPage() {
   const recentEvents = events
     .sort((a, b) => new Date(b.createdAt || b.updatedAt).getTime() - new Date(a.createdAt || a.updatedAt).getTime())
     .slice(0, 2)
-  
+
   recentEvents.forEach(event => {
     const timeAgo = getTimeAgo(event.createdAt || event.updatedAt)
     recentActivities.push({
@@ -272,6 +293,15 @@ export default function DashboardPage() {
     }
   }
 
+  const handleDeleteBlog = async (id: string) => {
+    if (confirm('Are you sure you want to delete this blog post?')) {
+      const result = await deleteBlog(id)
+      if (!result.success) {
+        alert('Failed to delete blog post: ' + result.error)
+      }
+    }
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'bg-green-100 text-green-800'
@@ -283,9 +313,8 @@ export default function DashboardPage() {
   }
 
   const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent': return 'bg-red-100 text-red-800'
-      case 'high': return 'bg-orange-100 text-orange-800'
+    switch (priority?.toLowerCase()) {
+      case 'high': return 'bg-red-100 text-red-800'
       case 'medium': return 'bg-yellow-100 text-yellow-800'
       case 'low': return 'bg-green-100 text-green-800'
       default: return 'bg-gray-100 text-gray-800'
@@ -333,6 +362,19 @@ export default function DashboardPage() {
                 <div className="text-2xl font-bold">{events.length}</div>
                 <p className="text-xs text-muted-foreground">
                   {upcomingEvents} upcoming • {completedEvents} completed
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Blog</CardTitle>
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{blogs.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  {blogs.length} posts
                 </p>
               </CardContent>
             </Card>
@@ -501,6 +543,72 @@ export default function DashboardPage() {
                   )}
                 </CardContent>
               </Card>
+              {/* Blog */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Blog</CardTitle>
+                      <CardDescription>Upcoming blog posts</CardDescription>
+                    </div>
+                    <Button onClick={() => setShowAddBlog(true)} size="sm">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Blog
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {blogsLoading ? (
+                    <div className="text-center py-4">Loading blog posts...</div>
+                  ) : blogs.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      No blog posts scheduled. Create your first blog post!
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {blogs.slice(0, 5).map((blog: BlogPost) => (
+                        <div key={blog._id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex items-center space-x-4">
+                            {blog.images && blog.images.length > 0 && (
+                              <Image
+                                src={blog.images[0].url}
+                                alt={blog.title}
+                                width={48}
+                                height={48}
+                                className="rounded-lg object-cover"
+                              />
+                            )}
+                            <div>
+                              <h3 className="font-medium">{blog.title}</h3>
+                              <p className="text-sm text-gray-600">{blog.excerpt}</p>
+                              <div className="flex items-center space-x-2 mt-2">
+                                <Badge variant="secondary">
+                                  {blog.category}
+                                </Badge>
+                                <div className="flex items-center space-x-1 text-sm text-gray-500">
+                                  <Calendar className="h-4 w-4" />
+                                  {new Date(blog.createdAt).toLocaleDateString()}
+                                </div>
+                                <span className="text-sm text-gray-500">
+                                  {blog.readTime} read
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteBlog(blog._id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
 
             {/* Sidebar */}
@@ -570,11 +678,10 @@ export default function DashboardPage() {
                     <div className="space-y-4">
                       {sortedActivities.map((activity) => (
                         <div key={activity.id} className="flex items-center space-x-3">
-                          <div className={`w-2 h-2 rounded-full ${
-                            activity.type === 'project' ? 'bg-blue-600' :
+                          <div className={`w-2 h-2 rounded-full ${activity.type === 'project' ? 'bg-blue-600' :
                             activity.type === 'team' ? 'bg-green-600' :
-                            'bg-purple-600'
-                          }`}></div>
+                              'bg-purple-600'
+                            }`}></div>
                           <div className="flex-1">
                             <p className="text-sm">
                               <span className="font-medium">{activity.user}</span> {activity.action}
@@ -635,6 +742,21 @@ export default function DashboardPage() {
               </div>
               <div className="p-6">
                 <AddEventForm onClose={() => setShowAddEvent(false)} />
+              </div>
+            </div>
+          </div>
+        )}
+        {showAddBlog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between p-6 border-b">
+                <h2 className="text-xl font-semibold">Add Blog</h2>
+                <Button variant="ghost" size="sm" onClick={() => setShowAddBlog(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="p-6">
+                <AddBlogForm onClose={() => setShowAddBlog(false)} />
               </div>
             </div>
           </div>

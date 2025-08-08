@@ -43,7 +43,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
-              Empowering students at Assiut International Technological University 
+              Empowering students at Assiut International Technological University
               through technology, innovation, and collaborative learning.
             </p>
             <div className="flex space-x-4">
@@ -104,15 +104,15 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Mail className="h-4 w-4 text-blue-400" />
-                <span className="text-gray-400 text-sm">contact@aitudev.com</span>
+                <span className="text-gray-400 text-sm">aitudevelopment@gmail.com</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 text-blue-400" />
-                <span className="text-gray-400 text-sm">+20 88 123 4567</span>
+                <span className="text-gray-400 text-sm">+20 155 971 5645</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="h-4 w-4 text-blue-400" />
-                <span className="text-gray-400 text-sm">AITU Campus, Assiut</span>
+                <span className="text-gray-400 text-sm">AITU Dev, Assiut</span>
               </div>
             </div>
           </div>

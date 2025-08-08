@@ -311,7 +311,7 @@ export default function TeamPage() {
                   <ExternalLink className="ml-2 h-5 w-5" />
                 </a>
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-slate-900" asChild>
+              <Button size="lg" variant="outline" className="border-white text-black hover:bg-white hover:text-slate-900" asChild>
                 <a href="/contact">
                   Learn More
                 </a>
