@@ -6,11 +6,15 @@ import Footer from "@/components/layout/footer"
 
 const inter = Inter({ subsets: ["latin"] })
 
+
 export const metadata: Metadata = {
   title: "AITU Dev - Student Tech Team",
   description: "Empowering students at Assiut International Technological University through technology, innovation, and collaborative learning.",
   keywords: "AITU, student tech team, programming, web development, AI, machine learning, Assiut University",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  icons: {
+    icon: '/logo.png',
+  },
 }
 
 export default function RootLayout({

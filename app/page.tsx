@@ -121,7 +121,7 @@ export default function HomePage() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-slate-900" asChild>
+              <Button size="lg" variant="outline" className="border-white hover:bg-white hover:text-slate-900 text-black" asChild>
                 <Link href="/projects">
                   View Projects
                 </Link>
@@ -171,13 +171,13 @@ export default function HomePage() {
               About AITU Dev
             </h2>
             <p className="text-lg text-gray-600 leading-relaxed">
-              We are a passionate community of students at Assiut International Technological University, 
-              dedicated to learning and applying cutting-edge technologies. Our team focuses on practical 
-              projects that solve real-world problems while building valuable skills in software development, 
+              We are a passionate community of students at Assiut International Technological University,
+              dedicated to learning and applying cutting-edge technologies. Our team focuses on practical
+              projects that solve real-world problems while building valuable skills in software development,
               artificial intelligence, and innovation.
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="text-center">
               <CardHeader>
