@@ -84,7 +84,7 @@ export default function JoinPage() {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="max-w-4xl mx-auto text-center mb-16">
-          <h1 className="text-4xl font-bold mb-6 text-slate-900">Join AITU Dev</h1>
+          <h1 className="text-4xl font-bold mb-6 text-slate-900">Join AITU Dev(Soooon)</h1>
           <p className="text-xl text-gray-600 leading-relaxed">
             Ready to be part of an innovative tech community? Join us and accelerate your journey 
             in technology while making lasting connections and building amazing projects.
@@ -181,6 +181,8 @@ export default function JoinPage() {
                         onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                         placeholder="Enter your full name"
                         required
+                        readOnly
+
                       />
                     </div>
                     <div>
@@ -192,6 +194,8 @@ export default function JoinPage() {
                         onChange={(e) => setFormData({...formData, email: e.target.value})}
                         placeholder="your.email@aitu.edu.eg"
                         required
+                        readOnly
+
                       />
                     </div>
                   </div>
@@ -205,6 +209,7 @@ export default function JoinPage() {
                         onChange={(e) => setFormData({...formData, phone: e.target.value})}
                         placeholder="+20 xxx xxx xxxx"
                         required
+                        readOnly
                       />
                     </div>
                     <div>
@@ -215,6 +220,8 @@ export default function JoinPage() {
                         onChange={(e) => setFormData({...formData, studentId: e.target.value})}
                         placeholder="Your university student ID"
                         required
+                        readOnly
+
                       />
                     </div>
                   </div>
@@ -296,6 +303,8 @@ export default function JoinPage() {
                       placeholder="Tell us about your motivation, goals, and what you hope to contribute to the team..."
                       rows={4}
                       required
+                      readOnly
+
                     />
                   </div>
 
@@ -307,6 +316,8 @@ export default function JoinPage() {
                       value={formData.portfolio}
                       onChange={(e) => setFormData({...formData, portfolio: e.target.value})}
                       placeholder="https://github.com/yourusername or your portfolio website"
+                      readOnly
+
                     />
                   </div>
 
