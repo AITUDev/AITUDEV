@@ -415,7 +415,7 @@ export default function HomePage() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-slate-900" asChild>
+            <Button size="lg" variant="outline" className="border-white text-black hover:bg-white hover:text-slate-900" asChild>
               <Link href="/contact">
                 Get In Touch
               </Link>

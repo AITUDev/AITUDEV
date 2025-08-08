@@ -41,7 +41,7 @@ export default function AboutPage() {
               </div>
               <div>
                 <Image
-                  src="/collaborative-students-computers.png"
+                  src="/team.jpg"
                   alt="AITU Dev team working together"
                   width={600}
                   height={400}
