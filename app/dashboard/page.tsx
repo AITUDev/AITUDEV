@@ -39,12 +39,12 @@ function AuthCheck({ children }: { children: React.ReactNode }) {
     setError('')
 
     // Simple authentication check
-    if (email === 'aitudevelopment@gmail.com' && password === 'eweXuH3sMsOSbM08') {
+    if (email === process.env.dashboard_email && password === process.env.dashboard_pass) {
       setIsAuthenticated(true)
       localStorage.setItem('dashboard_auth', 'true')
       localStorage.setItem('dashboard_email', email)
     } else {
-      setError('Invalid credentials. Only aitudevelopment@gmail.com is authorized.')
+      setError('Invalid credentials. Only aitudev member is authorized.')
     }
     setLoading(false)
   }
