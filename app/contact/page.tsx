@@ -22,13 +22,13 @@ export default function ContactPage() {
     {
       icon: <Mail className="h-6 w-6 text-blue-500" />,
       title: "Email",
-      details: "contact@aitudev.com",
+      details: "aitudevelopment@gmail.com",
       description: "Send us an email anytime"
     },
     {
       icon: <Phone className="h-6 w-6 text-green-500" />,
       title: "Phone",
-      details: "+20 88 123 4567",
+      details: "+20 155 971 5645",
       description: "Call us during office hours"
     },
     {
@@ -48,13 +48,13 @@ export default function ContactPage() {
   const socialLinks = [
     {
       name: "Facebook",
-      url: "https://facebook.com/aitudev",
+      url: "https://www.facebook.com/profile.php?id=61571366154516",
       icon: "📘",
       followers: "2.5K"
     },
     {
       name: "Instagram",
-      url: "https://instagram.com/aitudev",
+      url: "https://www.instagram.com/aitudevelopers?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
       icon: "📷",
       followers: "1.8K"
     },
@@ -121,7 +121,7 @@ export default function ContactPage() {
         <div className="max-w-4xl mx-auto text-center mb-16">
           <h1 className="text-4xl font-bold mb-6 text-slate-900">Get in Touch</h1>
           <p className="text-xl text-gray-600 leading-relaxed">
-            Have questions, ideas, or want to collaborate? We'd love to hear from you. 
+            Have questions, ideas, or want to collaborate? We'd love to hear from you.
             Reach out to us through any of the channels below.
           </p>
         </div>
@@ -169,9 +169,10 @@ export default function ContactPage() {
                       <Input
                         id="name"
                         value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="Enter your full name"
                         required
+                        readOnly
                       />
                     </div>
                     <div>
@@ -180,9 +181,10 @@ export default function ContactPage() {
                         id="email"
                         type="email"
                         value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="your.email@example.com"
                         required
+                        readOnly
                       />
                     </div>
                   </div>
@@ -190,7 +192,7 @@ export default function ContactPage() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="category">Category *</Label>
-                      <Select onValueChange={(value) => setFormData({...formData, category: value})}>
+                      <Select onValueChange={(value) => setFormData({ ...formData, category: value })}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
@@ -209,9 +211,10 @@ export default function ContactPage() {
                       <Input
                         id="subject"
                         value={formData.subject}
-                        onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                         placeholder="Brief subject of your message"
                         required
+                        readOnly
                       />
                     </div>
                   </div>
@@ -221,10 +224,11 @@ export default function ContactPage() {
                     <Textarea
                       id="message"
                       value={formData.message}
-                      onChange={(e) => setFormData({...formData, message: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       placeholder="Tell us more about your inquiry, project idea, or how we can help you..."
                       rows={6}
                       required
+                      readOnly
                     />
                   </div>
 
@@ -357,7 +361,7 @@ export default function ContactPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-600 text-sm">
-                    You can apply through our Join Us page. Fill out the application form and we'll review 
+                    You can apply through our Join Us page. Fill out the application form and we'll review
                     your submission within 5-7 business days.
                   </p>
                 </CardContent>
@@ -369,7 +373,7 @@ export default function ContactPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-600 text-sm">
-                    Yes! We regularly organize workshops for all skill levels, from complete beginners 
+                    Yes! We regularly organize workshops for all skill levels, from complete beginners
                     to advanced developers. Check our Events page for upcoming sessions.
                   </p>
                 </CardContent>
@@ -381,7 +385,7 @@ export default function ContactPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-600 text-sm">
-                    Our core membership is limited to AITU students, but we welcome external participants 
+                    Our core membership is limited to AITU students, but we welcome external participants
                     in our public workshops and events.
                   </p>
                 </CardContent>
@@ -393,7 +397,7 @@ export default function ContactPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-600 text-sm">
-                    We're open to partnerships, internship programs, and project collaborations. 
+                    We're open to partnerships, internship programs, and project collaborations.
                     Contact us through the form above with "Collaboration" as the category.
                   </p>
                 </CardContent>
