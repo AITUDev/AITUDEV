@@ -39,7 +39,7 @@ function AuthCheck({ children }: { children: React.ReactNode }) {
     setError('')
 
     // Simple authentication check
-    if (email === process.env.dashboard_email && password === process.env.dashboard_pass) {
+    if (email === process.env.DASHBOARD_EMAIL && password === process.env.DASHBOARD_PASS) {
       setIsAuthenticated(true)
       localStorage.setItem('dashboard_auth', 'true')
       localStorage.setItem('dashboard_email', email)
@@ -164,12 +164,12 @@ export default function DashboardPage() {
   const { projects, loading: projectsLoading, deleteProject } = useProjects()
   const { teamMembers, loading: teamLoading, deleteTeamMember } = useTeamMembers()
   const { events, loading: eventsLoading, deleteEvent } = useEvents()
-  const { posts: blogs, loading: blogsLoading, deletePost: deleteBlog } = useBlog() 
+  const { posts: blogs, loading: blogsLoading, deletePost: deleteBlog } = useBlog()
 
   const [showAddProject, setShowAddProject] = useState(false)
   const [showAddMember, setShowAddMember] = useState(false)
   const [showAddEvent, setShowAddEvent] = useState(false)
-  const [showAddBlog, setShowAddBlog] = useState(false)   
+  const [showAddBlog, setShowAddBlog] = useState(false)
 
   // Calculate real statistics from database data
   const activeProjects = projects.filter(p => p.status === 'active').length
