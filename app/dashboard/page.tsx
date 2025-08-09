@@ -27,6 +27,7 @@ interface Activity {
 
 // Simple authentication component
 function AuthCheck({ children }: { children: React.ReactNode }) {
+
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -39,7 +40,8 @@ function AuthCheck({ children }: { children: React.ReactNode }) {
     setError('')
 
     // Simple authentication check
-    if (email === process.env.DASHBOARD_EMAIL && password === process.env.DASHBOARD_PASS) {
+
+        if (email === process.env.NEXT_PUBLIC_DASHBOARD_EMAIL && password === process.env.NEXT_PUBLIC_DASHBOARD_PASS) {
       setIsAuthenticated(true)
       localStorage.setItem('dashboard_auth', 'true')
       localStorage.setItem('dashboard_email', email)
@@ -59,7 +61,7 @@ function AuthCheck({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const auth = localStorage.getItem('dashboard_auth')
     const storedEmail = localStorage.getItem('dashboard_email')
-    if (auth === 'true' && storedEmail === 'aitudevelopment@gmail.com') {
+            if (auth === 'true' && storedEmail === process.env.NEXT_PUBLIC_DASHBOARD_EMAIL) {
       setIsAuthenticated(true)
     }
   }, [])
