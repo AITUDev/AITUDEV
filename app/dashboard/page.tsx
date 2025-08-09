@@ -7,15 +7,16 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Activity, ArrowUpRight, Calendar, Clock, Code, GitBranch, Globe, MoreHorizontal, Plus, TrendingUp, Users, Trash2, X, Shield, LogOut } from 'lucide-react'
-import { AddProjectForm } from '@/dashboard/components/add-project-form'
-import { AddTeamMemberForm } from '@/dashboard/components/add-team-member-form'
-import AddEventForm from '@/dashboard/components/add-event-form'
-import { AddBlogForm } from '@/dashboard/components/add-blog-form'
+
 import { useProjects } from '@/hooks/useProjects'
 import { useTeamMembers } from '@/hooks/useTeamMembers'
 import { useEvents } from '@/hooks/useEvents'
 import { useBlog, BlogPost } from '@/hooks/useBlog'
 import Image from 'next/image'
+import { AddBlogForm } from '@/components/add-blog-form'
+import AddEventForm from '@/components/add-event-form'
+import { AddTeamMemberForm } from '@/components/add-team-member-form'
+import { AddProjectForm } from '@/components/add-project-form'
 
 interface Activity {
   id: string
@@ -41,7 +42,7 @@ function AuthCheck({ children }: { children: React.ReactNode }) {
 
     // Simple authentication check
 
-        if (email === process.env.NEXT_PUBLIC_DASHBOARD_EMAIL && password === process.env.NEXT_PUBLIC_DASHBOARD_PASS) {
+    if (email === process.env.NEXT_PUBLIC_DASHBOARD_EMAIL && password === process.env.NEXT_PUBLIC_DASHBOARD_PASS) {
       setIsAuthenticated(true)
       localStorage.setItem('dashboard_auth', 'true')
       localStorage.setItem('dashboard_email', email)
@@ -61,7 +62,7 @@ function AuthCheck({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const auth = localStorage.getItem('dashboard_auth')
     const storedEmail = localStorage.getItem('dashboard_email')
-            if (auth === 'true' && storedEmail === process.env.NEXT_PUBLIC_DASHBOARD_EMAIL) {
+    if (auth === 'true' && storedEmail === process.env.NEXT_PUBLIC_DASHBOARD_EMAIL) {
       setIsAuthenticated(true)
     }
   }, [])
