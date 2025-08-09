@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Mail, Phone, MapPin, Clock, Send, MessageCircle, Users, Calendar } from 'lucide-react'
 import { useState } from "react"
+import Link from "next/link"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -314,8 +315,10 @@ export default function ContactPage() {
                       Assiut International Technological University
                     </div>
                   </div>
-                  <Button variant="outline" className="w-full">
-                    Visit University Website
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link href="https://www.facebook.com/egc.tech.assiut">
+                      Visit University Website
+                    </Link>
                   </Button>
                 </div>
               </CardContent>
