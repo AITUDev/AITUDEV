@@ -57,6 +57,7 @@ function AuthCheck({ children }: { children: React.ReactNode }) {
     setIsAuthenticated(false)
     localStorage.removeItem('dashboard_auth')
     localStorage.removeItem('dashboard_email')
+    localStorage.removeItem('dashboard_password')
   }
 
   // Check if already authenticated on mount
