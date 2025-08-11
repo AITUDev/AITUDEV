@@ -42,10 +42,11 @@ function AuthCheck({ children }: { children: React.ReactNode }) {
 
     // Simple authentication check
 
-    if (email === process.env.NEXT_PUBLIC_DASHBOARD_EMAIL && password === process.env.NEXT_PUBLIC_DASHBOARD_PASS) {
+    if (email === process.env.NEXT_PUBLIC_DASHBOARD_EMAIL && password === process.env.NEXT_PUBLIC_DASHBOARD_PASS ) {
       setIsAuthenticated(true)
       localStorage.setItem('dashboard_auth', 'true')
       localStorage.setItem('dashboard_email', email)
+      localStorage.setItem('dashboard_password', password)
     } else {
       setError('Invalid credentials. Only aitudev member is authorized.')
     }
@@ -62,7 +63,8 @@ function AuthCheck({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const auth = localStorage.getItem('dashboard_auth')
     const storedEmail = localStorage.getItem('dashboard_email')
-    if (auth === 'true' && storedEmail === process.env.NEXT_PUBLIC_DASHBOARD_EMAIL) {
+    const storedPassword = localStorage.getItem('dashboard_password')
+    if (auth === 'true' && storedEmail === process.env.NEXT_PUBLIC_DASHBOARD_EMAIL && storedPassword === process.env.NEXT_PUBLIC_DASHBOARD_PASS) {
       setIsAuthenticated(true)
     }
   }, [])
