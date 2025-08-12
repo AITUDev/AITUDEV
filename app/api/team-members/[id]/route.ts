@@ -42,7 +42,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     } catch (error) {
         console.error('Error fetching member:', error);
         return NextResponse.json(
-            { success: false, error: 'Failed to fetch member' },
+            { success: false, error: 'Failed to fetch member .. try again' },
             { status: 500 }
         );
     }
