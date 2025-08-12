@@ -87,6 +87,27 @@ export function useBlog() {
     }
   };
 
+  const updatePost = async (id: string, formData: FormData) => {
+    try {
+      const response = await fetch(`/api/blog?id=${id}`, {
+        method: 'PUT',
+        body: formData,
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setPosts(prev => prev.map(post => post._id === id ? data.data : post));
+        return { success: true, data: data.data };
+      } else {
+        return { success: false, error: data.error || 'Failed to update blog post' };
+      }
+    } catch (err) {
+      console.error('Error updating blog post:', err);
+      return { success: false, error: 'Failed to update blog post' };
+    }
+  };
+
   useEffect(() => {
     fetchPosts();
   }, []);
@@ -97,6 +118,7 @@ export function useBlog() {
     error,
     createPost,
     deletePost,
+    updatePost,
     refetch: fetchPosts,
   };
 }

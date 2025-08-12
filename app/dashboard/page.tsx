@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Activity, ArrowUpRight, Calendar, Clock, Code, GitBranch, Globe, MoreHorizontal, Plus, TrendingUp, Users, Trash2, X, Shield, LogOut } from 'lucide-react'
+import { Activity, Calendar, GitBranch, Globe, Plus, Trash2, X } from 'lucide-react'
 
 import { useProjects } from '@/hooks/useProjects'
 import { useTeamMembers } from '@/hooks/useTeamMembers'
@@ -17,6 +17,9 @@ import { AddBlogForm } from '@/components/add-blog-form'
 import AddEventForm from '@/components/add-event-form'
 import { AddTeamMemberForm } from '@/components/add-team-member-form'
 import { AddProjectForm } from '@/components/add-project-form'
+import AuthCheck from './authCheck'
+import Analytics from './analytics'
+import Link from 'next/link'
 
 interface Activity {
   id: string
@@ -26,145 +29,8 @@ interface Activity {
   type: string
 }
 
-// Simple authentication component
-function AuthCheck({ children }: { children: React.ReactNode }) {
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-
-    // Simple authentication check
-
-    if (email === process.env.NEXT_PUBLIC_DASHBOARD_EMAIL && password === process.env.NEXT_PUBLIC_DASHBOARD_PASS ) {
-      setIsAuthenticated(true)
-      localStorage.setItem('dashboard_auth', 'true')
-      localStorage.setItem('dashboard_email', email)
-      localStorage.setItem('dashboard_password', password)
-    } else {
-      setError('Invalid credentials. Only aitudev member is authorized.')
-    }
-    setLoading(false)
-  }
-
-  const handleLogout = () => {
-    setIsAuthenticated(false)
-    localStorage.removeItem('dashboard_auth')
-    localStorage.removeItem('dashboard_email')
-    localStorage.removeItem('dashboard_password')
-  }
-
-  // Check if already authenticated on mount
-  useEffect(() => {
-    const auth = localStorage.getItem('dashboard_auth')
-    const storedEmail = localStorage.getItem('dashboard_email')
-    const storedPassword = localStorage.getItem('dashboard_password')
-    if (auth === 'true' && storedEmail === process.env.NEXT_PUBLIC_DASHBOARD_EMAIL && storedPassword === process.env.NEXT_PUBLIC_DASHBOARD_PASS) {
-      setIsAuthenticated(true)
-    }
-  }, [])
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
-              <Shield className="h-6 w-6 text-blue-600" />
-            </div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-              AITU Dev Dashboard
-            </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              Authorized access only
-            </p>
-          </div>
-          <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="email" className="sr-only">
-                  Email address
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div>
-                <label htmlFor="password" className="sr-only">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  className="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {error && (
-              <div className="text-red-600 text-sm text-center">{error}</div>
-            )}
-
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {loading ? 'Signing in...' : 'Sign in'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div>
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <h1 className="text-xl font-semibold text-gray-900">AITU Dev Dashboard</h1>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">aitudevelopment@gmail.com</span>
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                size="sm"
-                className="flex items-center space-x-2"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-      {children}
-    </div>
-  )
-}
 
 export default function DashboardPage() {
   const { projects, loading: projectsLoading, deleteProject } = useProjects()
@@ -177,17 +43,9 @@ export default function DashboardPage() {
   const [showAddEvent, setShowAddEvent] = useState(false)
   const [showAddBlog, setShowAddBlog] = useState(false)
 
-  // Calculate real statistics from database data
-  const activeProjects = projects.filter(p => p.status === 'active').length
-  const completedProjects = projects.filter(p => p.status === 'completed').length
-  const activeMembers = teamMembers.filter(m => m.status === 'active').length
-  const upcomingEvents = events.filter(e => !e.isCompleted && new Date(e.date) >= new Date()).length
-  const completedEvents = events.filter(e => e.isCompleted).length
-
 
   // Calculate average project progress
   const totalProgress = projects.reduce((sum, project) => sum + (project.progress || 0), 0)
-  const averageProgress = projects.length > 0 ? Math.round(totalProgress / projects.length) : 0
 
   // Generate recent activity from actual data
   const recentActivities: Activity[] = []
@@ -332,72 +190,7 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           {/* Overview Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
-                <Code className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{projects.length}</div>
-                <p className="text-xs text-muted-foreground">
-                  {activeProjects} active • {completedProjects} completed
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Team Members</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{teamMembers.length}</div>
-                <p className="text-xs text-muted-foreground">
-                  {activeMembers} active members
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Events</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{events.length}</div>
-                <p className="text-xs text-muted-foreground">
-                  {upcomingEvents} upcoming • {completedEvents} completed
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Blog</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{blogs.length}</div>
-                <p className="text-xs text-muted-foreground">
-                  {blogs.length} posts
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Avg Progress</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{averageProgress}%</div>
-                <p className="text-xs text-muted-foreground">
-                  Project completion rate
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <Analytics />
 
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -433,14 +226,14 @@ export default function DashboardPage() {
                               <Image
                                 src={project.image.url}
                                 alt={project.name}
-                                width={48}
-                                height={48}
+                                width={80}
+                                height={80}
                                 className="rounded-lg object-cover"
                               />
                             )}
                             <div>
                               <h3 className="font-medium">{project.name}</h3>
-                              <p className="text-sm text-gray-600">{project.description}</p>
+                              <p className="text-sm text-gray-600 line-clamp-2">{project.description}</p>
                               <div className="flex items-center space-x-2 mt-2">
                                 <Badge className={getStatusColor(project.status)}>
                                   {project.status}
@@ -480,6 +273,7 @@ export default function DashboardPage() {
                       ))}
                     </div>
                   )}
+                  <Link href="/dashboard/projects" className="text-blue-600 hover:text-blue-700">View All </Link>
                 </CardContent>
               </Card>
 
@@ -547,6 +341,7 @@ export default function DashboardPage() {
                       ))}
                     </div>
                   )}
+                  <Link href="/dashboard/events" className="text-blue-600 hover:text-blue-700">View All </Link>
                 </CardContent>
               </Card>
               {/* Blog */}
@@ -613,6 +408,7 @@ export default function DashboardPage() {
                       ))}
                     </div>
                   )}
+                  <Link href="/dashboard/blog" className="text-blue-600 hover:text-blue-700">View All </Link>
                 </CardContent>
               </Card>
             </div>
@@ -664,8 +460,8 @@ export default function DashboardPage() {
                           </Button>
                         </div>
                       ))}
-                    </div>
-                  )}
+                    </div>)}
+                  <Link href="/dashboard/members" className="text-blue-600 hover:text-blue-700">View All </Link>
                 </CardContent>
               </Card>
 
