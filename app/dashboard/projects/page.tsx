@@ -118,13 +118,6 @@ export default function ProjectsPage() {
                                             Edit
                                         </Button>
 
-                                            <Link
-                                                href={`/dashboard/projects/${project._id}`}
-                                                className="ml-2"
-                                            >
-                                                Edit
-                                            </Link>
-
                                     </div>
                                 </div>
 
