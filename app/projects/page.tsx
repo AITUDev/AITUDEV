@@ -24,7 +24,7 @@ interface Project {
   updatedAt: string
   teamMembers?: string[]
   priority: string
-  projectType?: 'mobile' | 'web' | 'network' | 'design' | string
+  projectType?: 'mobile' | 'web' | 'network' | 'design' | 'software' | 'video game' | 'video' | 'other' | 'hardware'
 }
 
 export default function ProjectsPage() {
@@ -191,6 +191,10 @@ export default function ProjectsPage() {
                     <SelectItem value="web">Web</SelectItem>
                     <SelectItem value="network">Network</SelectItem>
                     <SelectItem value="design">Design</SelectItem>
+                    <SelectItem value="software">Software</SelectItem>
+                    <SelectItem value="video game">Video Game</SelectItem>
+                    <SelectItem value="video">Video</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
