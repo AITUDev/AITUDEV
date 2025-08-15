@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Github, ExternalLink, Calendar, Users, Star, Search, Filter, Code } from 'lucide-react'
 import Image from "next/image"
+import Link from 'next/link'
 
 interface Project {
   _id: string
@@ -23,6 +24,7 @@ interface Project {
   updatedAt: string
   teamMembers?: string[]
   priority: string
+  projectType?: 'mobile' | 'web' | 'network' | 'design' | string
 }
 
 export default function ProjectsPage() {
@@ -31,13 +33,14 @@ export default function ProjectsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [priorityFilter, setPriorityFilter] = useState('all')
+  const [typeFilter, setTypeFilter] = useState('all')
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         const response = await fetch('/api/projects')
         const data = await response.json()
-        
+
         if (data.success) {
           setProjects(data.data)
         }
@@ -51,16 +54,18 @@ export default function ProjectsPage() {
     fetchProjects()
   }, [])
 
+ 
   // Filter projects based on search and filters
   const filteredProjects = projects.filter(project => {
     const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.technologies.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase()))
-    
+      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.technologies.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase()))
+
     const matchesStatus = statusFilter === 'all' || project.status === statusFilter
     const matchesPriority = priorityFilter === 'all' || project.priority === priorityFilter
-    
-    return matchesSearch && matchesStatus && matchesPriority
+    const matchesType = typeFilter === 'all' || project.projectType === typeFilter
+
+    return matchesSearch && matchesStatus && matchesPriority && matchesType
   })
 
   const getStatusColor = (status: string) => {
@@ -72,6 +77,8 @@ export default function ProjectsPage() {
       default: return 'bg-gray-100 text-gray-800'
     }
   }
+
+
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -160,7 +167,7 @@ export default function ProjectsPage() {
                     <SelectItem value="cancelled">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
-                
+
                 <Select value={priorityFilter} onValueChange={setPriorityFilter}>
                   <SelectTrigger className="w-40">
                     <SelectValue placeholder="Priority" />
@@ -171,6 +178,19 @@ export default function ProjectsPage() {
                     <SelectItem value="high">High</SelectItem>
                     <SelectItem value="medium">Medium</SelectItem>
                     <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Project Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="mobile">Mobile App</SelectItem>
+                    <SelectItem value="web">Web</SelectItem>
+                    <SelectItem value="network">Network</SelectItem>
+                    <SelectItem value="design">Design</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -194,8 +214,8 @@ export default function ProjectsPage() {
                   {projects.length === 0 ? 'No Projects Yet' : 'No Projects Found'}
                 </h3>
                 <p className="text-gray-500">
-                  {projects.length === 0 
-                    ? 'Our team is working on exciting projects. Check back soon!' 
+                  {projects.length === 0
+                    ? 'Our team is working on exciting projects. Check back soon!'
                     : 'Try adjusting your search or filters to find what you\'re looking for.'
                   }
                 </p>
@@ -203,129 +223,131 @@ export default function ProjectsPage() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredProjects.map((project) => (
-                  <Card key={project._id} className="group hover:shadow-xl transition-all duration-300 overflow-hidden">
-                    <CardHeader className="p-0">
-                      {project.image?.url ? (
-                        <div className="relative overflow-hidden">
-                          <Image
-                            src={project.image.url}
-                            alt={project.name}
-                            width={400}
-                            height={240}
-                            className="w-full h-60 object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                          <div className="absolute top-4 left-4 flex gap-2">
-                            <Badge className={getStatusColor(project.status)}>
-                              {project.status}
-                            </Badge>
-                            <Badge className={getPriorityColor(project.priority)}>
-                              {project.priority}
-                            </Badge>
-                          </div>
-                          <div className="absolute top-4 right-4">
-                            <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-medium">
-                              {project.progress}%
+                  <Link key={project._id} href={`/projects/${project._id}`}>
+                    <Card key={project._id} className="group hover:shadow-xl transition-all duration-300 overflow-hidden">
+                      <CardHeader className="p-0">
+                        {project.image?.url ? (
+                          <div className="relative overflow-hidden">
+                            <Image
+                              src={project.image.url}
+                              alt={project.name}
+                              width={400}
+                              height={240}
+                              className="w-full h-60 object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute top-4 left-4 flex gap-2">
+                              <Badge className={getStatusColor(project.status)}>
+                                {project.status}
+                              </Badge>
+                              <Badge className={getPriorityColor(project.priority)}>
+                                {project.priority}
+                              </Badge>
+                            </div>
+                            <div className="absolute top-4 right-4">
+                              <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-medium">
+                                {project.progress}%
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ) : (
-                        <div className="w-full h-60 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative">
-                          <Code className="h-16 w-16 text-gray-400" />
-                          <div className="absolute top-4 left-4 flex gap-2">
-                            <Badge className={getStatusColor(project.status)}>
-                              {project.status}
-                            </Badge>
-                            <Badge className={getPriorityColor(project.priority)}>
-                              {project.priority}
-                            </Badge>
-                          </div>
-                          <div className="absolute top-4 right-4">
-                            <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-medium">
-                              {project.progress}%
+                        ) : (
+                          <div className="w-full h-60 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative">
+                            <Code className="h-16 w-16 text-gray-400" />
+                            <div className="absolute top-4 left-4 flex gap-2">
+                              <Badge className={getStatusColor(project.status)}>
+                                {project.status}
+                              </Badge>
+                              <Badge className={getPriorityColor(project.priority)}>
+                                {project.priority}
+                              </Badge>
+                            </div>
+                            <div className="absolute top-4 right-4">
+                              <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-medium">
+                                {project.progress}%
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </CardHeader>
-                    
-                    <CardContent className="p-6">
-                      <CardTitle className="mb-3 group-hover:text-blue-600 transition-colors line-clamp-1">
-                        {project.name}
-                      </CardTitle>
-                      
-                      <CardDescription className="mb-4 line-clamp-3">
-                        {project.description}
-                      </CardDescription>
-                      
-                      {/* Technologies */}
-                      <div className="flex flex-wrap gap-1 mb-4">
-                        {project.technologies.slice(0, 4).map((tech) => (
-                          <Badge key={tech} variant="outline" className="text-xs">
-                            {tech}
-                          </Badge>
-                        ))}
-                        {project.technologies.length > 4 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{project.technologies.length - 4} more
-                          </Badge>
                         )}
-                      </div>
-                      
-                      {/* Progress Bar */}
-                      <div className="mb-4">
-                        <div className="flex justify-between text-sm text-gray-600 mb-1">
-                          <span>Progress</span>
-                          <span>{project.progress}%</span>
+                      </CardHeader>
+
+                      <CardContent className="p-6">
+                        <CardTitle className="mb-3 group-hover:text-blue-600 transition-colors line-clamp-1">
+                          {project.name}
+                        </CardTitle>
+
+                        <CardDescription className="mb-4 line-clamp-3">
+                          {project.description}
+                        </CardDescription>
+
+                        {/* Technologies */}
+                        <div className="flex flex-wrap gap-1 mb-4">
+                          {project.technologies.slice(0, 4).map((tech) => (
+                            <Badge key={tech} variant="outline" className="text-xs">
+                              {tech}
+                            </Badge>
+                          ))}
+                          {project.technologies.length > 4 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{project.technologies.length - 4} more
+                            </Badge>
+                          )}
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${project.progress}%` }}
-                          ></div>
+
+                        {/* Progress Bar */}
+                        <div className="mb-4">
+                          <div className="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>Progress</span>
+                            <span>{project.progress}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${project.progress}%` }}
+                            ></div>
+                          </div>
                         </div>
-                      </div>
-                      
-                      {/* Meta Information */}
-                      <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          <span>{formatDate(project.createdAt)}</span>
-                        </div>
-                        {project.teamMembers && project.teamMembers.length > 0 && (
+
+                        {/* Meta Information */}
+                        <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                           <div className="flex items-center gap-1">
-                            <Users className="h-4 w-4" />
-                            <span>{project.teamMembers.length} members</span>
+                            <Calendar className="h-4 w-4" />
+                            <span>{formatDate(project.createdAt)}</span>
                           </div>
-                        )}
-                      </div>
-                      
-                      {/* Action Buttons */}
-                      <div className="flex gap-2">
-                        {project.githubUrl && (
-                          <Button size="sm" variant="outline" className="flex-1" asChild>
-                            <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                              <Github className="h-4 w-4 mr-2" />
-                              Code
-                            </a>
-                          </Button>
-                        )}
-                        {project.liveUrl && (
-                          <Button size="sm" variant="outline" className="flex-1" asChild>
-                            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="h-4 w-4 mr-2" />
-                              Demo
-                            </a>
-                          </Button>
-                        )}
-                        {!project.githubUrl && !project.liveUrl && (
-                          <Button size="sm" variant="outline" className="flex-1" disabled>
-                            <Code className="h-4 w-4 mr-2" />
-                            In Development
-                          </Button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                          {project.teamMembers && project.teamMembers.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Users className="h-4 w-4" />
+                              <span>{project.teamMembers.length} members</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-2">
+                          {project.githubUrl && (
+                            <Button size="sm" variant="outline" className="flex-1" asChild>
+                              <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                                <Github className="h-4 w-4 mr-2" />
+                                Code
+                              </Link>
+                            </Button>
+                          )}
+                          {project.liveUrl && (
+                            <Button size="sm" variant="outline" className="flex-1" asChild>
+                              <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="h-4 w-4 mr-2" />
+                                Demo
+                              </Link>
+                            </Button>
+                          )}
+                          {!project.githubUrl && !project.liveUrl && (
+                            <Button size="sm" variant="outline" className="flex-1" disabled>
+                              <Code className="h-4 w-4 mr-2" />
+                              In Development
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
               </div>
             )}

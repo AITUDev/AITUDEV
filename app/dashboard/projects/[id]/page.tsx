@@ -9,6 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import Image from "next/image";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function EditProjectPage() {
   const { id } = useParams();
@@ -88,6 +89,8 @@ export default function EditProjectPage() {
       formData.append("endDate", project.endDate || "");
       formData.append("githubUrl", project.githubUrl || "");
       formData.append("liveUrl", project.liveUrl || "");
+      formData.append('projectType', project.projectType)
+
       if (project.image instanceof File) {
         formData.append("image", project.image);
       }
@@ -176,6 +179,26 @@ export default function EditProjectPage() {
           <div>
             <Label>Live URL</Label>
             <Input name="liveUrl" value={project?.liveUrl || ""} onChange={handleChange} />
+          </div>
+          <div>
+            <Label>Project Type</Label>
+            <Select value={project?.projectType || "all"} onValueChange={(value) => handleChange({ target: { name: "projectType", value } })}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="web">Web</SelectItem>
+                <SelectItem value="mobile">Mobile</SelectItem>
+                <SelectItem value="desktop">Desktop</SelectItem>
+                <SelectItem value="network">Network</SelectItem>
+                <SelectItem value="design">Design</SelectItem>
+                <SelectItem value="software">Software</SelectItem>
+                <SelectItem value="video game">Video Game</SelectItem>
+                <SelectItem value="video">Video</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label>Image</Label>

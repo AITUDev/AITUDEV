@@ -21,6 +21,7 @@ export function AddProjectForm({ onClose }: AddProjectFormProps) {
     name: '',
     description: '',
     status: 'active' as 'active' | 'completed' | 'paused' | 'cancelled',
+    projectType: 'all' as 'all' | 'web' | 'mobile' | 'desktop' | 'network' | 'design' | 'software' | 'video game' | 'video' | 'other' | 'hardware',
     progress: 0,
     githubUrl: '',
     liveUrl: '',
@@ -69,17 +70,18 @@ export function AddProjectForm({ onClose }: AddProjectFormProps) {
       submitData.append('name', formData.name)
       submitData.append('description', formData.description)
       submitData.append('status', formData.status)
+      submitData.append('projectType', formData.projectType)
       submitData.append('progress', formData.progress.toString())
       submitData.append('technologies', JSON.stringify(technologies))
       submitData.append('githubUrl', formData.githubUrl)
       submitData.append('liveUrl', formData.liveUrl)
-      
+
       if (image) {
         submitData.append('image', image)
       }
 
       const result = await createProject(submitData)
-      
+
       if (result.success) {
         onClose()
       } else {
@@ -129,6 +131,26 @@ export function AddProjectForm({ onClose }: AddProjectFormProps) {
               <SelectItem value="completed">Completed</SelectItem>
               <SelectItem value="paused">Paused</SelectItem>
               <SelectItem value="cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="projectType">Project Type</Label>
+          <Select value={formData.projectType} onValueChange={(value) => handleInputChange('projectType', value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="mobile">Mobile</SelectItem>
+              <SelectItem value="web">Web</SelectItem>
+              <SelectItem value="desktop">Desktop</SelectItem>
+              <SelectItem value="network">Network</SelectItem>
+              <SelectItem value="design">Design</SelectItem>
+              <SelectItem value="software">Software</SelectItem>
+              <SelectItem value="video game">Video Game</SelectItem>
+              <SelectItem value="video">Video</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
             </SelectContent>
           </Select>
         </div>
