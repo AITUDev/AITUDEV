@@ -22,7 +22,8 @@ interface Event {
 }
 
 export default function EventPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string; // Type assertion since we know this is a dynamic route
   const router = useRouter();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,11 +31,20 @@ export default function EventPage() {
 
   useEffect(() => {
     const fetchEvent = async () => {
+      if (!id) {
+        setError('Event ID is missing');
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch(`/api/events/${id}`);
         const data = await response.json();
-        if (data.success) setEvent(data.data);
-        else setError(data.error || 'Failed to fetch event');
+        if (data.success) {
+          setEvent(data.data);
+        } else {
+          setError(data.error || 'Failed to fetch event');
+        }
       } catch (err) {
         console.error('Error:', err);
         setError('Failed to load event data');
@@ -43,8 +53,19 @@ export default function EventPage() {
       }
     };
 
-    if (id) fetchEvent();
+    fetchEvent();
   }, [id]);
+
+  // Set page title when event data is loaded
+  useEffect(() => {
+    if (event) {
+      document.title = `${event.title} | AITU Dev`;
+    } else if (error) {
+      document.title = 'Error | AITU Dev';
+    } else if (!loading) {
+      document.title = 'Event Not Found | AITU Dev';
+    }
+  }, [event, error, loading]);
 
   if (loading) return <div className="container mx-auto px-4 py-12 text-center">Loading...</div>;
   if (error) return <div className="container mx-auto px-4 py-12 text-center text-red-500">{error}</div>;

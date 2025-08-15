@@ -30,8 +30,19 @@ interface TeamMember {
     joinDate: string;
 }
 
+// Helper function to create a URL-friendly slug
+const createSlug = (name: string) => {
+  return name
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-')      // Replace spaces with hyphens
+    .replace(/--+/g, '-')      // Replace multiple hyphens with single hyphen
+    .trim();
+};
+
 export default function TeamMemberPage() {
-    const { id } = useParams();
+    const params = useParams();
+    const id = params?.id as string; // Type assertion since we know this is a dynamic route
     const router = useRouter();
     const [member, setMember] = useState<TeamMember | null>(null);
     const [loading, setLoading] = useState(true);
@@ -39,12 +50,32 @@ export default function TeamMemberPage() {
 
     useEffect(() => {
         const fetchMember = async () => {
+            if (!id) {
+                setError('Team member ID is missing');
+                setLoading(false);
+                return;
+            }
+
             try {
-                const response = await fetch(`/api/team-members/${id}`);
-                const data = await response.json();
+                // First try to find by ID (for backward compatibility)
+                let response = await fetch(`/api/team-members/${id}`);
+                let data = await response.json();
+
+                // If not found by ID, try to find by name slug
+                if (!data.success) {
+                    const nameFromSlug = id.replace(/-/g, ' ');
+                    response = await fetch(`/api/team-members/name/${nameFromSlug}`);
+                    data = await response.json();
+                }
 
                 if (data.success) {
                     setMember(data.data);
+                    // Redirect to the slug-based URL if accessed via ID
+                    if (id.includes('-')) return; // Already using slug
+                    const slug = createSlug(data.data.name);
+                    if (slug !== id) {
+                        router.replace(`/team/${slug}`, { scroll: false });
+                    }
                 } else {
                     setError(data.error || 'Failed to fetch team member');
                 }
@@ -56,10 +87,19 @@ export default function TeamMemberPage() {
             }
         };
 
-        if (id) {
-            fetchMember();
+        fetchMember();
+    }, [id, router]);
+
+    // Set page title when member data is loaded
+    useEffect(() => {
+        if (member) {
+            document.title = `${member.name} | AITU Dev`;
+        } else if (error) {
+            document.title = 'Error | AITU Dev';
+        } else if (!loading) {
+            document.title = 'Team Member Not Found | AITU Dev';
         }
-    }, [id]);
+    }, [member, error, loading]);
 
     if (loading) {
         return (
@@ -74,7 +114,7 @@ export default function TeamMemberPage() {
             <div className="container mx-auto px-4 py-12">
                 <div className="text-center text-red-500">{error}</div>
                 <div className="mt-4 text-center">
-                    <Button variant="outline" onClick={() => router.back()}>
+                    <Button variant="outline" onClick={() => router.push('/team')}>
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to Team
                     </Button>

@@ -25,8 +25,20 @@ interface Project {
     priority: string;
 }
 
+// Helper function to create a URL-friendly slug
+const createSlug = (name: string) => {
+    if (!name) return '';
+    return name
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-')     // Replace spaces with hyphens
+        .replace(/-+/g, '-')      // Replace multiple hyphens with single hyphen
+        .trim();
+};
+
 export default function ProjectPage() {
-    const { id } = useParams();
+    const params = useParams();
+    const idOrSlug = params?.id as string; // This could be ID or name slug
     const router = useRouter();
     const [project, setProject] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
@@ -34,11 +46,46 @@ export default function ProjectPage() {
 
     useEffect(() => {
         const fetchProject = async () => {
+            if (!idOrSlug) {
+                setError('Project identifier is missing');
+                setLoading(false);
+                return;
+            }
+
             try {
-                const response = await fetch(`/api/projects/${id}`);
-                const data = await response.json();
-                if (data.success) setProject(data.data);
-                else setError(data.error || 'Failed to fetch project');
+                // First try to find by ID (for backward compatibility)
+                let response = await fetch(`/api/projects/${idOrSlug}`);
+                let data = await response.json();
+
+                // If not found by ID, try to find by name slug
+                if (!data.success) {
+                    // Keep the original slug for the API call
+                    response = await fetch(`/api/projects/name/${encodeURIComponent(idOrSlug)}`);
+                    data = await response.json();
+                    
+                    // If still not found, try with spaces instead of hyphens
+                    if (!data.success && idOrSlug.includes('-')) {
+                        const nameWithSpaces = idOrSlug.replace(/-/g, ' ');
+                        response = await fetch(`/api/projects/name/${encodeURIComponent(nameWithSpaces)}`);
+                        data = await response.json();
+                    }
+                }
+
+                if (data.success) {
+                    setProject(data.data);
+                    // Redirect to the slug-based URL if accessed via ID
+                    if (idOrSlug !== data.data._id && !idOrSlug.includes('-')) {
+                        const slug = createSlug(data.data.name);
+                        router.replace(`/projects/${slug}`);
+                        return;
+                    }
+                    const slug = createSlug(data.data.name);
+                    if (slug && slug !== idOrSlug) {
+                        router.replace(`/projects/${slug}`, { scroll: false });
+                    }
+                } else {
+                    setError(data.error || 'Project not found');
+                }
             } catch (err) {
                 console.error('Error:', err);
                 setError('Failed to load project data');
@@ -47,8 +94,18 @@ export default function ProjectPage() {
             }
         };
 
-        if (id) fetchProject();
-    }, [id]);
+        fetchProject();
+    }, [idOrSlug, router]);
+
+    useEffect(() => {
+        if (project) {
+            document.title = `${project.name} | AITU Dev`;
+        } else if (error) {
+            document.title = 'Error | AITU Dev';
+        } else if (!loading) {
+            document.title = 'Project Not Found | AITU Dev';
+        }
+    }, [project, error, loading]);
 
     if (loading) return <div className="container mx-auto px-4 py-12 text-center">Loading...</div>;
     if (error) return <div className="container mx-auto px-4 py-12 text-center text-red-500">{error}</div>;

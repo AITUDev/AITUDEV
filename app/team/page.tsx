@@ -25,6 +25,16 @@ interface TeamMember {
   joinDate: string
 }
 
+// Helper function to create a URL-friendly slug
+const createSlug = (name: string) => {
+  return name
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-')      // Replace spaces with hyphens
+    .replace(/--+/g, '-')      // Replace multiple hyphens with single hyphen
+    .trim();
+};
+
 export default function TeamPage() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
   const [loading, setLoading] = useState(true)
@@ -64,7 +74,6 @@ export default function TeamPage() {
     return matchesSearch && matchesRole && matchesStatus
   })
 
-
   // Get featured post (first published post marked as featured)
   const featuredPost = teamMembers.find((member: TeamMember) => member.status === 'active' && member._id)
   const getStatusColor = (status: string) => {
@@ -85,6 +94,94 @@ export default function TeamPage() {
 
   // Get unique roles for filter
   const uniqueRoles = [...new Set(teamMembers.map(member => member.role))]
+
+  // Update the team member card to use the slug-based URL
+  const renderTeamMemberCard = (member: TeamMember) => {
+    const memberSlug = createSlug(member.name);
+    
+    return (
+      <Link key={member._id} href={`/team/${memberSlug}`} passHref>
+        <Card className="h-full transition-transform hover:scale-105 hover:shadow-lg">
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg mb-4">
+                {member.avatar?.url ? (
+                  <Image
+                    src={member.avatar.url}
+                    alt={member.name}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                    <Users className="h-16 w-16 text-gray-400" />
+                  </div>
+                )}
+              </div>
+              
+              <h3 className="text-xl font-semibold">{member.name}</h3>
+              <p className="text-muted-foreground">{member.role}</p>
+              
+              <div className="mt-2">
+                <Badge className={getStatusColor(member.status)}>
+                  {member.status.charAt(0).toUpperCase() + member.status.slice(1)}
+                </Badge>
+              </div>
+              
+              <div className="mt-4 flex flex-wrap gap-2 justify-center">
+                {member.skills.slice(0, 3).map((skill, index) => (
+                  <Badge key={index} variant="outline" className="text-xs">
+                    {skill}
+                  </Badge>
+                ))}
+                {member.skills.length > 3 && (
+                  <Badge variant="outline" className="text-xs">
+                    +{member.skills.length - 3} more
+                  </Badge>
+                )}
+              </div>
+              
+              <div className="mt-4 flex space-x-2">
+                {member.githubUrl && (
+                  <a 
+                    href={member.githubUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <Github className="h-5 w-5" />
+                  </a>
+                )}
+                {member.linkedinUrl && (
+                  <a 
+                    href={member.linkedinUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    className="text-gray-500 hover:text-blue-600"
+                  >
+                    <Linkedin className="h-5 w-5" />
+                  </a>
+                )}
+                {member.portfolioUrl && (
+                  <a 
+                    href={member.portfolioUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    className="text-gray-500 hover:text-blue-500"
+                  >
+                    <ExternalLink className="h-5 w-5" />
+                  </a>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -175,102 +272,30 @@ export default function TeamPage() {
       </section>
 
       {/* Team Members Grid */}
-
       <section className="py-12">
         <div className="container mx-auto px-4">
-          <div className="max-w-7xl mx-auto">
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="text-gray-500">Loading team members...</div>
-              </div>
-            ) : filteredMembers.length === 0 ? (
-              <div className="text-center py-12">
-                <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">
-                  {teamMembers.length === 0 ? 'No Team Members Yet' : 'No Members Found'}
-                </h3>
-                <p className="text-gray-500">
-                  {teamMembers.length === 0
-                    ? 'We\'re building our team. Join us to be among the first!'
-                    : 'Try adjusting your search or filters to find what you\'re looking for.'
-                  }
-                </p>
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {filteredMembers.map((member) => (
-                  <Link href={`/team/${member._id}`} key={member._id}>
-                    <Card className="group hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden border border-gray-200 h-full flex flex-col">
-                      <CardHeader className="text-center pb-4 flex-shrink-0">
-                        <div className="relative mx-auto mb-4">
-                          <div className="w-32 h-32 rounded-full overflow-hidden mx-auto border-4 border-white shadow-lg">
-                            {member.avatar?.url ? (
-                              <Image
-                                src={member.avatar.url}
-                                alt={member.name}
-                                width={128}
-                                height={128}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
-                                <Users className="h-12 w-12 text-blue-400" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="absolute -top-2 -right-2">
-                            <Badge className={getStatusColor(member.status)}>{member.status}</Badge>
-                          </div>
-                        </div>
-                        <CardTitle className="group-hover:text-blue-600 transition-colors text-lg">{member.name}</CardTitle>
-                        <CardDescription className="font-medium text-blue-600">{member.role}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="pt-0 flex-1 flex flex-col justify-between">
-                        <div>
-                          <p className="text-sm text-gray-600 mb-4 line-clamp-3 leading-relaxed">{member.bio}</p>
-                          <div className="mb-4">
-                            <h4 className="text-sm font-semibold text-gray-700 mb-2">Skills</h4>
-                            <div className="flex flex-wrap gap-1">
-                              {member.skills.slice(0, 6).map(skill => (
-                                <Badge key={skill} variant="outline" className="text-xs">{skill}</Badge>
-                              ))}
-                              {member.skills.length > 6 && (
-                                <Badge variant="outline" className="text-xs">+{member.skills.length - 6} more</Badge>
-                              )}
-                            </div>
-                          </div>
-                          <div className="text-xs text-gray-500 mb-4">Member since {formatDate(member.joinDate)}</div>
-                        </div>
-                        <div className="flex gap-2 justify-center mt-auto">
-                          {member.email && (
-                            <Button size="sm" variant="outline" asChild>
-                              <Link href={`mailto:${member.email}`}><Mail className="h-4 w-4" /></Link>
-                            </Button>
-                          )}
-                          {member.githubUrl && (
-                            <Button size="sm" variant="outline" asChild>
-                              <Link href={member.githubUrl} target="_blank"><Github className="h-4 w-4" /></Link>
-                            </Button>
-                          )}
-                          {member.linkedinUrl && (
-                            <Button size="sm" variant="outline" asChild>
-                              <Link href={member.linkedinUrl} target="_blank"><Linkedin className="h-4 w-4" /></Link>
-                            </Button>
-                          )}
-                          {member.portfolioUrl && (
-                            <Button size="sm" variant="outline" asChild>
-                              <Link href={member.portfolioUrl} target="_blank"><ExternalLink className="h-4 w-4" /></Link>
-                            </Button>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+          {loading ? (
+            <div className="text-center py-12">Loading team members...</div>
+          ) : filteredMembers.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredMembers.map(member => renderTeamMemberCard(member))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-600">No team members found matching your criteria.</p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => {
+                  setSearchTerm('');
+                  setRoleFilter('all');
+                  setStatusFilter('all');
+                }}
+              >
+                Clear filters
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 

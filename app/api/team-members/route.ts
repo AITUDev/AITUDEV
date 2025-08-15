@@ -3,10 +3,31 @@ import { ObjectId } from 'mongodb';
 import dbConnect from '@/lib/mongodb';
 import { uploadImage, deleteImage } from '@/lib/cloudinary';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const name = searchParams.get('name');
+    
     const db = await dbConnect();
-    const teamMembers = await db.collection('teammembers').find({}).sort({ createdAt: -1 }).toArray();
+    
+    if (name) {
+      // Search for team members by name (case-insensitive, partial match)
+      const teamMembers = await db.collection('teammembers')
+        .find({ 
+          name: { $regex: name, $options: 'i' } 
+        })
+        .sort({ name: 1 })
+        .toArray();
+      
+      return NextResponse.json({ success: true, data: teamMembers });
+    }
+    
+    // If no name parameter, return all team members
+    const teamMembers = await db.collection('teammembers')
+      .find({})
+      .sort({ name: 1 })
+      .toArray();
+      
     return NextResponse.json({ success: true, data: teamMembers });
   } catch (error) {
     console.error('Error fetching team members:', error);
