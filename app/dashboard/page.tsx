@@ -496,6 +496,11 @@ export default function DashboardPage() {
                   )}
                 </CardContent>
               </Card>
+              <Card>
+                <CardTitle>Our service</CardTitle>
+                <Link href="/dashboard/our-service" className="text-blue-600 hover:text-blue-700">View All service </Link>
+
+              </Card>
             </div>
           </div>
         </div>
