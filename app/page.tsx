@@ -1,12 +1,11 @@
-"use client"
-
-import { useState, useEffect } from 'react'
+// Server Component: fetch data on the server to improve LCP
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Users, Code, Trophy, Calendar, Github, ExternalLink } from 'lucide-react'
+import { ArrowRight, Users, Code, Trophy } from 'lucide-react'
 import Image from "next/image"
 import Link from "next/link"
+import dynamic from "next/dynamic"
 
 interface Project {
   _id: string
@@ -20,6 +19,50 @@ interface Project {
   liveUrl?: string
   createdAt: string
 }
+
+// Lightweight skeletons for dynamic sections
+function SectionSkeleton({ rows = 3 }: { rows?: number }) {
+  return (
+    <div className="container mx-auto px-4">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {Array.from({ length: rows }).map((_, i) => (
+          <div key={i} className="animate-pulse border rounded-lg">
+            <div className="w-full h-48 bg-gray-200 rounded-t-lg" />
+            <div className="p-6 space-y-3">
+              <div className="h-4 bg-gray-200 w-24 rounded" />
+              <div className="h-5 bg-gray-200 w-2/3 rounded" />
+              <div className="h-4 bg-gray-200 w-full rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const FeaturedProjectsSection = dynamic(() => import("@/components/home/FeaturedProjects"), {
+  loading: () => <SectionSkeleton rows={3} />,
+  ssr: false,
+})
+
+const TeamSection = dynamic(() => import("@/components/home/TeamSection"), {
+  loading: () => (
+    <div className="container mx-auto px-4">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="animate-pulse border rounded-lg p-6">
+            <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4" />
+            <div className="h-5 bg-gray-200 w-1/2 mx-auto rounded mb-2" />
+            <div className="h-4 bg-gray-200 w-2/3 mx-auto rounded" />
+          </div>
+        ))}
+      </div>
+    </div>
+  ),
+  ssr: false,
+})
+
+const CTASection = dynamic(() => import("@/components/home/CTASection"), { ssr: false })
 
 interface TeamMember {
   _id: string
@@ -42,39 +85,27 @@ interface Event {
   location?: string
 }
 
-export default function HomePage() {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
-  const [events, setEvents] = useState<Event[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [projectsRes, teamRes, eventsRes] = await Promise.all([
-          fetch('/api/projects'),
-          fetch('/api/team-members'),
-          fetch('/api/events')
-        ])
-
-        const [projectsData, teamData, eventsData] = await Promise.all([
-          projectsRes.json(),
-          teamRes.json(),
-          eventsRes.json()
-        ])
-
-        if (projectsData.success) setProjects(projectsData.data)
-        if (teamData.success) setTeamMembers(teamData.data)
-        if (eventsData.success) setEvents(eventsData.data)
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
-  }, [])
+export default async function HomePage() {
+  let projects: Project[] = []
+  let teamMembers: TeamMember[] = []
+  let events: Event[] = []
+  try {
+    const [projectsRes, teamRes, eventsRes] = await Promise.all([
+      fetch('/api/projects', { cache: 'no-store' }),
+      fetch('/api/team-members', { cache: 'no-store' }),
+      fetch('/api/events', { cache: 'no-store' }),
+    ])
+    const [projectsData, teamData, eventsData] = await Promise.all([
+      projectsRes.json(),
+      teamRes.json(),
+      eventsRes.json(),
+    ])
+    if (projectsData?.success) projects = projectsData.data
+    if (teamData?.success) teamMembers = teamData.data
+    if (eventsData?.success) events = eventsData.data
+  } catch (error) {
+    console.error('Error fetching data:', error)
+  }
 
   // Calculate real statistics
   const activeProjects = projects.filter(p => p.status === 'active').length
@@ -106,6 +137,7 @@ export default function HomePage() {
                   src="/logo.png"
                   alt="AITU Dev"
                   priority={true}
+                  fetchPriority="high"
                   width={100}
                   height={100}
                   sizes="100px"
@@ -144,26 +176,24 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-3xl font-bold text-slate-900 mb-2">
-                {loading ? '...' : `${activeMembers}+`}
+                {activeMembers}+
               </div>
               <div className="text-gray-600">Active Members</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-slate-900 mb-2">
-                {loading ? '...' : `${projects.length}+`}
+                {projects.length}+
               </div>
               <div className="text-gray-600">Total Projects</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-slate-900 mb-2">
-                {loading ? '...' : `${completedProjects}+`}
+                {completedProjects}+
               </div>
               <div className="text-gray-600">Completed Projects</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-slate-900 mb-2">
-                {loading ? '...' : `${upcomingEvents}+`}
-              </div>
+              <div className="text-3xl font-bold text-slate-900 mb-2">{`${upcomingEvents}+`}</div>
               <div className="text-gray-600">Upcoming Events</div>
             </div>
           </div>
@@ -231,207 +261,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Projects Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              Featured Projects
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Discover some of our latest and most innovative projects that showcase our team's capabilities.
-            </p>
-          </div>
+      {/* Featured Projects Section (dynamically loaded) */}
+      <FeaturedProjectsSection projects={projects} loading={false} />
 
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="text-gray-500">Loading projects...</div>
-            </div>
-          ) : featuredProjects.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-gray-500">No projects available yet.</div>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredProjects.map((project) => (
-                <Card key={project._id} className="group hover:shadow-lg transition-shadow">
-                  <CardHeader className="p-0">
-                    {project.image?.url ? (
-                      <Image
-                        src={project.image.url}
-                        alt={project.name}
-                        width={400}
-                        height={200}
-                        className="w-full h-48 object-cover rounded-t-lg"
-                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                      />
-                    ) : (
-                      <div className="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
-                        <Code className="h-12 w-12 text-gray-400" />
-                      </div>
-                    )}
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge variant={project.status === 'completed' ? 'default' : 'secondary'}>
-                        {project.status}
-                      </Badge>
-                      <span className="text-sm text-gray-500">{project.progress}%</span>
-                    </div>
-                    <CardTitle className="mb-2 group-hover:text-blue-600 transition-colors">
-                      {project.name}
-                    </CardTitle>
-                    <CardDescription className="mb-4">
-                      {project.description}
-                    </CardDescription>
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {project.technologies.slice(0, 3).map((tech) => (
-                        <Badge key={tech} variant="outline" className="text-xs">
-                          {tech}
-                        </Badge>
-                      ))}
-                      {project.technologies.length > 3 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{project.technologies.length - 3} more
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      {project.githubUrl && (
-                        <Button size="sm" variant="outline" asChild>
-                          <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                            <Github className="h-4 w-4" />
-                          </a>
-                        </Button>
-                      )}
-                      {project.liveUrl && (
-                        <Button size="sm" variant="outline" asChild>
-                          <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+      {/* Team Section (dynamically loaded) */}
+      <TeamSection teamMembers={teamMembers} loading={false} />
 
-          <div className="text-center mt-12">
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/projects">
-                View All Projects
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Team Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              Meet Our Team
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Get to know the talented individuals who make AITU Dev a thriving community of innovation.
-            </p>
-          </div>
-
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="text-gray-500">Loading team members...</div>
-            </div>
-          ) : featuredMembers.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-gray-500">No team members available yet.</div>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {featuredMembers.map((member) => (
-                <Card key={member._id} className="text-center group hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden">
-                      {member.avatar?.url ? (
-                        <Image
-                          src={member.avatar.url}
-                          alt={member.name}
-                          width={96}
-                          height={96}
-                          className="w-full h-full object-cover"
-                          sizes="96px"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                          <Users className="h-8 w-8 text-gray-400" />
-                        </div>
-                      )}
-                    </div>
-                    <CardTitle className="group-hover:text-blue-600 transition-colors">
-                      {member.name}
-                    </CardTitle>
-                    <CardDescription>{member.role}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                      {member.bio}
-                    </p>
-                    <div className="flex flex-wrap gap-1 justify-center">
-                      {member.skills.slice(0, 3).map((skill) => (
-                        <Badge key={skill} variant="outline" className="text-xs">
-                          {skill}
-                        </Badge>
-                      ))}
-                      {member.skills.length > 3 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{member.skills.length - 3}
-                        </Badge>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          <div className="text-center mt-12">
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/team">
-                Meet Full Team
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-slate-900 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Join Our Journey?
-          </h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Whether you're a beginner or experienced developer, there's a place for you in our community.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-orange-500 hover:bg-orange-600" asChild>
-              <Link href="/join">
-                Join Our Team
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" className="border-white text-black hover:bg-white hover:text-slate-900" asChild>
-              <Link href="/contact">
-                Get In Touch
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* CTA Section (dynamically loaded) */}
+      <CTASection />
     </div>
   )
 }

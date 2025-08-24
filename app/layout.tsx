@@ -27,11 +27,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Preload hero logo to help LCP */}
+        <link rel="preload" as="image" href="/logo.png" />
+
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=G-XRQ3VSSSXL`}
-          strategy="afterInteractive"/>
+          strategy="lazyOnload"/>
 
-        <Script>
+        <Script strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
