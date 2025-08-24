@@ -1,19 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Pencil, Trash2, Plus, X } from "lucide-react";
-import * as LucideIcons from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
@@ -23,12 +14,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import IconPicker from "@/components/IconPicker";
 import { Label } from "@/components/ui/label";
 import {
@@ -39,34 +24,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import AuthCheck from "../authCheck";
+import TableOurServices from "@/components/table-our-services";
+import useOurServices, { Service as OurService } from "@/hooks/useOurServices";
 
-type LucideIcon = React.ComponentType<{ className?: string }>;
-
-interface Service {
-  _id: string;
-  title: string;
-  description: string;
-  icon: string;
-  price_per_hour: string;
-  price_per_project: string;
-  type:
-  | "all"
-  | "digital-media"
-  | "mobile-app"
-  | "programming"
-  | "ai-intelligence"
-  | "web-design"
-  | "web-management"
-  | "network";
-  createdAt: string;
-  updatedAt: string;
-}
+type Service = OurService;
 
 type ServiceForm = Omit<Service, "_id" | "createdAt" | "updatedAt">;
 
 export default function ServicesDashboard() {
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { services, loading, refetch } = useOurServices();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [formData, setFormData] = useState<ServiceForm>({
@@ -80,44 +46,7 @@ export default function ServicesDashboard() {
 
   const { toast } = useToast();
 
-  // === Fetch Services ===
-  const fetchServices = async () => {
-    try {
-      const response = await fetch("/api/our-service", { cache: "no-store" });
-      const data = await response.json();
-      const arr = Array.isArray(data)
-        ? data
-        : Array.isArray((data as any)?.data)
-          ? (data as any).data
-          : [];
-
-      const normalized: Service[] = arr.map((doc: any) => ({
-        _id: String(doc?._id),
-        title: doc?.title ?? "",
-        description: doc?.description ?? "",
-        icon: doc?.icon ?? "",
-        price_per_hour: doc?.price_per_hour ?? "",
-        price_per_project: doc?.price_per_project ?? "",
-        type: doc?.type ?? "all",
-        createdAt: new Date(doc?.createdAt || Date.now()).toISOString(),
-        updatedAt: new Date(doc?.updatedAt || Date.now()).toISOString(),
-      }));
-
-      setServices(normalized);
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to fetch services",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchServices();
-  }, []);
+  // Data is provided by useOurServices
 
   // === Handlers ===
   const handleInputChange = (
@@ -172,7 +101,7 @@ export default function ServicesDashboard() {
         price_per_hour: "",
         price_per_project: "",
       });
-      fetchServices();
+      refetch();
     } catch (err: any) {
       toast({
         title: "Error",
@@ -203,7 +132,7 @@ export default function ServicesDashboard() {
       });
       if (!response.ok) throw new Error();
       toast({ title: "Success", description: "Service deleted successfully" });
-      fetchServices();
+      refetch();
     } catch {
       toast({
         title: "Error",
@@ -361,72 +290,11 @@ export default function ServicesDashboard() {
                 </Button>
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Icon</TableHead>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Last Updated</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {services.map((service) => {
-                    const Icon = service.icon
-                      ? (LucideIcons[
-                        service.icon as keyof typeof LucideIcons
-                      ] as LucideIcon)
-                      : null;
-                    return (
-                      <TableRow key={service._id} className="hover:bg-gray-50">
-                        <TableCell>
-                          {Icon ? (
-                            <Icon className="h-5 w-5 text-blue-600" />
-                          ) : (
-                            "-"
-                          )}
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {service.title}
-                        </TableCell>
-                        <TableCell className="max-w-xs truncate">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span>{service.description}</span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                {service.description}
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(service.updatedAt).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className="text-right space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(service)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-red-500 hover:text-red-700"
-                            onClick={() => handleDelete(service._id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+              <TableOurServices
+                services={services}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             )}
           </CardContent>
         </Card>
