@@ -102,7 +102,14 @@ export default function HomePage() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="flex justify-center mb-8">
               <div className="bg-white/10 backdrop-blur-sm rounded-full p-4">
-                <Image src="/logo.png" alt="AITU Dev" priority={true} width={100} height={100} />
+                <Image
+                  src="/logo.png"
+                  alt="AITU Dev"
+                  priority={true}
+                  width={100}
+                  height={100}
+                  sizes="100px"
+                />
               </div>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
@@ -256,6 +263,7 @@ export default function HomePage() {
                         width={400}
                         height={200}
                         className="w-full h-48 object-cover rounded-t-lg"
+                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                       />
                     ) : (
                       <div className="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
@@ -354,6 +362,7 @@ export default function HomePage() {
                           width={96}
                           height={96}
                           className="w-full h-full object-cover"
+                          sizes="96px"
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-200 flex items-center justify-center">

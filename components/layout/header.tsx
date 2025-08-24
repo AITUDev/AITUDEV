@@ -28,7 +28,7 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
         
-              <Image src="/logo.png" alt="AITU Dev" width={50} height={50} />
+              <Image src="/logo.png" alt="AITU Dev" width={50} height={50} sizes="50px" />
      
             <div className="flex flex-col">
               <span className="text-xl font-bold text-slate-900">AITU Dev</span>
@@ -66,7 +66,7 @@ export default function Header() {
             <SheetContent side="right" className="w-80">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center space-x-2">
-                  <Image src="/logo.png" alt="AITU Dev" width={50} height={50} />
+                  <Image src="/logo.png" alt="AITU Dev" width={50} height={50} sizes="50px" />
                   <div className="flex flex-col">
                     <span className="font-bold text-slate-900">AITU Dev</span>
                     <span className="text-xs text-gray-500">Student Tech Team</span>
