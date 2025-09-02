@@ -61,7 +61,7 @@ export default function ContactPage() {
     },
     {
       name: "LinkedIn",
-      url: "https://linkedin.com/company/aitudev",
+      url: "https://www.linkedin.com/company/aitu-dev/",
       icon: "💼",
       followers: "3.2K"
     },

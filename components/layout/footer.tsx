@@ -24,7 +24,7 @@ export default function Footer() {
   const socialLinks = [
     { name: "Facebook", href: "https://facebook.com/aitudev", icon: Facebook },
     { name: "Instagram", href: "https://instagram.com/aitudev", icon: Instagram },
-    { name: "LinkedIn", href: "https://linkedin.com/company/aitudev", icon: Linkedin },
+    { name: "LinkedIn", href: "https://www.linkedin.com/company/aitu-dev/", icon: Linkedin },
     { name: "GitHub", href: "https://github.com/aitudev", icon: Github },
     { name: "YouTube", href: "https://youtube.com/@aitudev", icon: Youtube }
   ]
