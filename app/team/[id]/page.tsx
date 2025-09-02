@@ -27,7 +27,7 @@ interface TeamMember {
         linkedin?: string;
         portfolio?: string;
     };
-    joinDate: string;
+    createdAt: Date;
 }
 
 // Helper function to create a URL-friendly slug
@@ -240,7 +240,7 @@ export default function TeamMemberPage() {
                                     )}
 
                                     <div className="pt-4">
-                                        <p className="text-sm text-gray-500">Member since {new Date(member.joinDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</p>
+                                        <p className="text-sm text-gray-500">Member since {new Date(member.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</p>
                                     </div>
                                 </div>
                             </CardContent>
