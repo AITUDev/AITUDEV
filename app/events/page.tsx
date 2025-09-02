@@ -364,61 +364,63 @@ export default function EventsPage() {
                     </h2>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {pastEvents.map((event) => (
-                        <Card key={event._id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden opacity-90">
-                          <CardHeader className="p-0">
-                            {event.image?.url ? (
-                              <div className="relative overflow-hidden">
-                                <Image
-                                  src={event.image.url}
-                                  alt={event.title}
-                                  width={400}
-                                  height={200}
-                                  className="w-full h-40 object-cover grayscale group-hover:grayscale-0 transition-all duration-300"
-                                />
-                                <div className="absolute top-4 left-4">
-                                  <Badge className={getStatusColor(event)}>
-                                    {getStatusText(event)}
-                                  </Badge>
+                        <Link href={`/events/${event._id}`} passHref key={event._id} >
+                          <Card key={event._id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden opacity-90">
+                            <CardHeader className="p-0">
+                              {event.image?.url ? (
+                                <div className="relative overflow-hidden">
+                                  <Image
+                                    src={event.image.url}
+                                    alt={event.title}
+                                    width={400}
+                                    height={200}
+                                    className="w-full h-40 object-cover grayscale group-hover:grayscale-0 transition-all duration-300"
+                                  />
+                                  <div className="absolute top-4 left-4">
+                                    <Badge className={getStatusColor(event)}>
+                                      {getStatusText(event)}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="w-full h-40 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative">
+                                  <Calendar className="h-12 w-12 text-gray-400" />
+                                  <div className="absolute top-4 left-4">
+                                    <Badge className={getStatusColor(event)}>
+                                      {getStatusText(event)}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              )}
+                            </CardHeader>
+
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between mb-2">
+                                <CardTitle className="text-lg line-clamp-2">
+                                  {event.title}
+                                </CardTitle>
+                                <Badge variant="outline" className="ml-2 shrink-0 text-xs">
+                                  {event.type}
+                                </Badge>
+                              </div>
+
+                              <CardDescription className="mb-3 line-clamp-2 text-sm">
+                                {event.description}
+                              </CardDescription>
+
+                              <div className="flex items-center justify-between text-sm text-gray-500">
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="h-3 w-3" />
+                                  <span>{formatDate(event.date)}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Users className="h-3 w-3" />
+                                  <span>{event.attendees.length} attended</span>
                                 </div>
                               </div>
-                            ) : (
-                              <div className="w-full h-40 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative">
-                                <Calendar className="h-12 w-12 text-gray-400" />
-                                <div className="absolute top-4 left-4">
-                                  <Badge className={getStatusColor(event)}>
-                                    {getStatusText(event)}
-                                  </Badge>
-                                </div>
-                              </div>
-                            )}
-                          </CardHeader>
-
-                          <CardContent className="p-4">
-                            <div className="flex items-start justify-between mb-2">
-                              <CardTitle className="text-lg line-clamp-2">
-                                {event.title}
-                              </CardTitle>
-                              <Badge variant="outline" className="ml-2 shrink-0 text-xs">
-                                {event.type}
-                              </Badge>
-                            </div>
-
-                            <CardDescription className="mb-3 line-clamp-2 text-sm">
-                              {event.description}
-                            </CardDescription>
-
-                            <div className="flex items-center justify-between text-sm text-gray-500">
-                              <div className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                <span>{formatDate(event.date)}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Users className="h-3 w-3" />
-                                <span>{event.attendees.length} attended</span>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
+                            </CardContent>
+                          </Card>
+                        </Link>
                       ))}
                     </div>
                   </div>
@@ -427,7 +429,7 @@ export default function EventsPage() {
             )}
           </div>
         </div>
-      </section>
-    </div>
+      </section >
+    </div >
   )
 }
