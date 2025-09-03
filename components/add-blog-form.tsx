@@ -167,8 +167,8 @@ export function AddBlogForm({ onClose }: AddBlogFormProps) {
                   <Label htmlFor="title">Title *</Label>
                   <Input
                     id="title"
-                    value={formData.title}
-                    onChange={(e) => handleInputChange('title', e.target.value)}
+                    value={formData.title.trim()}
+                    onChange={(e) => handleInputChange('title', e.target.value.trim())}
                     required
                   />
                 </div>
@@ -177,8 +177,8 @@ export function AddBlogForm({ onClose }: AddBlogFormProps) {
                   <Label htmlFor="author">Author *</Label>
                   <Input
                     id="author"
-                    value={formData.author}
-                    onChange={(e) => handleInputChange('author', e.target.value)}
+                    value={formData.author.trim()}
+                    onChange={(e) => handleInputChange('author', e.target.value.trim())}
                     required
                   />
                 </div>
@@ -203,8 +203,8 @@ export function AddBlogForm({ onClose }: AddBlogFormProps) {
                   <Label htmlFor="excerpt">Excerpt *</Label>
                   <Textarea
                     id="excerpt"
-                    value={formData.excerpt}
-                    onChange={(e) => handleInputChange('excerpt', e.target.value)}
+                    value={formData.excerpt.trim()}
+                    onChange={(e) => handleInputChange('excerpt', e.target.value.trim())}
                     rows={3}
                     required
                   />

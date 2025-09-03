@@ -110,8 +110,8 @@ export function AddTeamMemberForm({ onClose }: AddTeamMemberFormProps) {
         <Label htmlFor="name">Full Name</Label>
         <Input
           id="name"
-          value={formData.name}
-          onChange={(e) => handleInputChange('name', e.target.value)}
+          value={formData.name.trim()}
+          onChange={(e) => handleInputChange('name', e.target.value.trim())}
           placeholder="Enter full name"
           required
         />
@@ -122,8 +122,8 @@ export function AddTeamMemberForm({ onClose }: AddTeamMemberFormProps) {
         <Input
           id="email"
           type="email"
-          value={formData.email}
-          onChange={(e) => handleInputChange('email', e.target.value)}
+          value={formData.email.trim()}
+          onChange={(e) => handleInputChange('email', e.target.value.trim())}
           placeholder="Enter email address"
           required
         />
@@ -134,8 +134,8 @@ export function AddTeamMemberForm({ onClose }: AddTeamMemberFormProps) {
           <Label htmlFor="role">Role</Label>
           <Input
             id="role"
-            value={formData.role}
-            onChange={(e) => handleInputChange('role', e.target.value)}
+            value={formData.role.trim()}
+            onChange={(e) => handleInputChange('role', e.target.value.trim())}
             placeholder="e.g. Frontend Developer"
             required
           />
@@ -160,8 +160,8 @@ export function AddTeamMemberForm({ onClose }: AddTeamMemberFormProps) {
         <Label htmlFor="bio">Bio</Label>
         <Textarea
           id="bio"
-          value={formData.bio}
-          onChange={(e) => handleInputChange('bio', e.target.value)}
+          value={formData.bio.trim()}
+          onChange={(e) => handleInputChange('bio', e.target.value.trim())}
           placeholder="Brief bio or description"
         />
       </div>
@@ -197,18 +197,18 @@ export function AddTeamMemberForm({ onClose }: AddTeamMemberFormProps) {
         <div className="space-y-2 mt-2">
           <Input
             placeholder="GitHub URL"
-            value={socialLinks.github}
-            onChange={(e) => handleSocialLinkChange('github', e.target.value)}
+            value={socialLinks.github.trim()}
+            onChange={(e) => handleSocialLinkChange('github', e.target.value.trim())}
           />
           <Input
             placeholder="LinkedIn URL"
-            value={socialLinks.linkedin}
-            onChange={(e) => handleSocialLinkChange('linkedin', e.target.value)}
+            value={socialLinks.linkedin.trim()}
+            onChange={(e) => handleSocialLinkChange('linkedin', e.target.value.trim())}
           />
           <Input
             placeholder="Twitter URL"
-            value={socialLinks.twitter}
-            onChange={(e) => handleSocialLinkChange('twitter', e.target.value)}
+            value={socialLinks.twitter.trim()}
+            onChange={(e) => handleSocialLinkChange('twitter', e.target.value.trim())}
           />
         </div>
       </div>

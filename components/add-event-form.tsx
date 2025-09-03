@@ -114,8 +114,8 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
             <Label htmlFor="title">Event Title</Label>
             <Input
               id="title"
-              value={formData.title}
-              onChange={(e) => handleInputChange('title', e.target.value)}
+              value={formData.title.trim()}
+              onChange={(e) => handleInputChange('title', e.target.value.trim())}
               placeholder="Enter event title"
               required
             />
@@ -125,8 +125,8 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
+              value={formData.description.trim()}
+              onChange={(e) => handleInputChange('description', e.target.value.trim())}
               placeholder="Enter event description"
               required
             />
@@ -149,8 +149,8 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
               <Label htmlFor="location">Location</Label>
               <Input
                 id="location"
-                value={formData.location}
-                onChange={(e) => handleInputChange('location', e.target.value)}
+                value={formData.location.trim()}
+                onChange={(e) => handleInputChange('location', e.target.value.trim())}
                 placeholder="Event location"
               />
             </div>

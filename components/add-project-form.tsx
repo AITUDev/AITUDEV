@@ -101,8 +101,8 @@ export function AddProjectForm({ onClose }: AddProjectFormProps) {
         <Label htmlFor="name">Project Name</Label>
         <Input
           id="name"
-          value={formData.name}
-          onChange={(e) => handleInputChange('name', e.target.value)}
+          value={formData.name.trim()}
+          onChange={(e) => handleInputChange('name', e.target.value.trim())}
           placeholder="Enter project name"
           required
         />
@@ -112,8 +112,8 @@ export function AddProjectForm({ onClose }: AddProjectFormProps) {
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
-          value={formData.description}
-          onChange={(e) => handleInputChange('description', e.target.value)}
+          value={formData.description.trim()}
+          onChange={(e) => handleInputChange('description', e.target.value.trim())}
           placeholder="Enter project description"
           required
         />
@@ -201,8 +201,8 @@ export function AddProjectForm({ onClose }: AddProjectFormProps) {
           <Input
             id="githubUrl"
             type="url"
-            value={formData.githubUrl}
-            onChange={(e) => handleInputChange('githubUrl', e.target.value)}
+            value={formData.githubUrl.trim()}
+            onChange={(e) => handleInputChange('githubUrl', e.target.value.trim())}
             placeholder="https://github.com/..."
           />
         </div>
@@ -212,8 +212,8 @@ export function AddProjectForm({ onClose }: AddProjectFormProps) {
           <Input
             id="liveUrl"
             type="url"
-            value={formData.liveUrl}
-            onChange={(e) => handleInputChange('liveUrl', e.target.value)}
+            value={formData.liveUrl.trim()}
+            onChange={(e) => handleInputChange('liveUrl', e.target.value.trim())}
             placeholder="https://..."
           />
         </div>
