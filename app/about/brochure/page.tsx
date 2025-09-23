@@ -21,9 +21,9 @@ export default function AITUDevBrochure() {
             const direction = el.dataset.reveal || "up";
             let initClass = ["opacity-0"];
 
-            if (direction === "up") initClass.push("translate-y-12");
-            if (direction === "left") initClass.push("-translate-x-12");
-            if (direction === "right") initClass.push("translate-x-12");
+            if (direction === "up") initClass.push("translate-y-16");
+            if (direction === "left") initClass.push("-translate-x-full", "md:-translate-x-32");
+            if (direction === "right") initClass.push("translate-x-full", "md:translate-x-32");
             if (direction === "scale") initClass.push("scale-75");
 
             initClass.forEach(c => el.classList.add(c));
@@ -34,12 +34,12 @@ export default function AITUDevBrochure() {
             entries.forEach(entry => {
                 const el = entry.target as HTMLElement;
                 if (entry.isIntersecting) {
-                    el.classList.remove("opacity-0", "translate-y-12", "-translate-x-12", "translate-x-12", "scale-75");
+                    el.classList.remove("opacity-0", "translate-y-16", "-translate-x-full", "md:-translate-x-32", "translate-x-full", "md:translate-x-32", "scale-75");
                     el.classList.add("opacity-100", "translate-x-0", "translate-y-0", "scale-100");
                     io.unobserve(el);
                 }
             });
-        }, { threshold: 0.2 });
+        }, { threshold: 0.3 });
 
         elements.forEach(el => io.observe(el));
         return () => io.disconnect();
@@ -180,22 +180,9 @@ export default function AITUDevBrochure() {
                                 </div>
 
                                 {/* النص */}
-                                <div className="md:w-1/2 w-full" data-reveal="up">
+                                <div className="md:w-1/2 w-full" data-reveal={index % 2 === 0 ? "right" : "left"}>
                                     <h2 className="text-5xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">{member.name}</h2>
                                     <p className="text-2xl text-blue-300 mb-6">{member.role}</p>
-                                    <p className="text-gray-300 text-lg mb-8 leading-relaxed">
-                                        {member.bio || "عضو فريق موهوب ومتفاني في AITU Dev، يساهم بشغف في بناء حلول تقنية مبتكرة."}
-                                    </p>
-                                    <div className="mb-8">
-                                        <h3 className="text-xl font-semibold mb-4 text-white">أبرز المهارات</h3>
-                                        <div className="flex flex-wrap gap-3">
-                                            {member.skills.map((skill) => (
-                                                <Badge key={skill} className="bg-gray-800/50 text-gray-200 border border-gray-700 text-md px-4 py-2 hover:bg-gray-700/50 hover:border-blue-400 transition-colors">
-                                                    {skill}
-                                                </Badge>
-                                            ))}
-                                        </div>
-                                    </div>
                                     <div className="flex items-center gap-6">
                                         {member.socialLinks?.github && (
                                             <a href={member.socialLinks.github} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors">
@@ -207,9 +194,6 @@ export default function AITUDevBrochure() {
                                                 <Linkedin size={28} />
                                             </a>
                                         )}
-                                        <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white bg-transparent">
-                                            عرض المشاريع
-                                        </Button>
                                     </div>
                                 </div>
                             </div>
