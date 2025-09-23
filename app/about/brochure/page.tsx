@@ -163,7 +163,7 @@ export default function AITUDevBrochure() {
             ) : (
                 <main className="container mx-auto px-4">
                     {teamMembers.map((member, index) => (
-                        <section key={member._id} className="min-h-screen flex items-center py-12">
+                        <section key={member._id} className="min-h-screen flex items-center py-8">
                             <div className={`flex flex-col md:flex-row items-center gap-12 ${index % 2 !== 0 ? "md:flex-row-reverse" : ""}`}>
 
                                 {/* الصورة */}
