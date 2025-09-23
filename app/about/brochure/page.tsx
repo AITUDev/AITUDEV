@@ -46,7 +46,7 @@ export default function AITUDevBrochure() {
     }, []);
 
     return (
-        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100 min-h-screen font-sans">
+        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100 min-h-screen font-sans leading-normal [text-rendering:optimizeLegibility]">
 
             {/* قصتنا */}
             <section data-reveal="up" className="py-20 mb-20">
@@ -54,11 +54,11 @@ export default function AITUDevBrochure() {
                     <div className="grid md:grid-cols-2 gap-16 items-center">
 
                         {/* النص */}
-                        <div data-reveal="left" className="text-right space-y-6">
-                            <h2 className="text-4xl md:text-5xl font-extrabold leading-tight bg-gradient-to-r from-blue-500 via-cyan-400 to-teal-300 bg-clip-text text-transparent">
+                        <div data-reveal="left" className="text-right space-y-6 [text-wrap:pretty]">
+                            <h2 className="text-4xl md:text-5xl font-extrabold leading-[1.3] bg-gradient-to-r from-blue-500 via-cyan-400 to-teal-300 bg-clip-text text-transparent whitespace-nowrap px-2 py-2">
                                 قصتنا: من فكرة إلى واقع
                             </h2>
-                            <p className="text-gray-300 text-lg leading-relaxed space-y-4">
+                            <div className="text-gray-300 text-lg space-y-4 [&>span]:block [&>span]:leading-[2.2] [&>span]:text-justify [&>span]:py-1 [&>span]:overflow-visible">
                                 <span className="block">
                                     تأسس فريق <span className="font-semibold text-cyan-300">AITU Dev</span> عام 2025
                                     على يد مجموعة من طلاب <span className="text-blue-400 font-medium">تكنولوجيا المعلومات </span>
@@ -75,17 +75,17 @@ export default function AITUDevBrochure() {
                                     يجمع الطلاب المبدعين لتطوير حلول رقمية تخدم 
                                     <span className="text-blue-300"> جامعتنا </span> ومجتمعنا الأوسع.
                                 </span>
-                            </p>
+                            </div>
 
 
                             {/* التفاصيل */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 text-sm">
                                 <div className="flex items-center justify-end gap-2 bg-gray-800/50 px-4 py-2 rounded-lg">
-                                    <span className="text-gray-300">تأسس في 2025</span>
+                                    <span className="text-gray-300 whitespace-nowrap">تأسس في 2025</span>
                                     <Calendar className="w-4 h-4 text-primary" />
                                 </div>
                                 <div className="flex items-center justify-end gap-2 bg-gray-800/50 px-4 py-2 rounded-lg">
-                                    <span className="text-gray-300">جامعة أسيوط الدولية التكنولوجية AITU</span>
+                                    <span className="text-gray-300 whitespace-nowrap">جامعة أسيوط الدولية التكنولوجية AITU</span>
                                     <MapPin className="w-4 h-4 text-primary" />
                                 </div>
                             </div>
@@ -111,7 +111,7 @@ export default function AITUDevBrochure() {
 
             {/* رؤيتنا */}
             <section data-reveal="up" className=" text-center container mx-auto px-4">
-                <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">رؤيتنا</h2>
+                <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent whitespace-nowrap px-2 py-3">رؤيتنا</h2>
                 <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
                     أن نكون مركزًا للإبداع التقني في جامعتنا، حيث نحول الأفكار الطموحة إلى مشاريع برمجية حقيقية تخدم المجتمع الطلابي وتواكب المستقبل الرقمي.
                 </p>
@@ -120,7 +120,7 @@ export default function AITUDevBrochure() {
             {/* قيمنا */}
             <section data-reveal="up" className="py-20 mb-20">
                 <div className="container mx-auto px-4 text-center">
-                    <h2 className="text-5xl font-bold mb-12 bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">قيمنا الأساسية</h2>
+                    <h2 className="text-5xl font-bold mb-12 bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent whitespace-nowrap px-2 py-2">قيمنا الأساسية</h2>
                     <div className="grid md:grid-cols-3 gap-12">
                         <div data-reveal="up" className="flex flex-col items-center hover:-translate-y-2 transition-transform duration-500">
                             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center mb-6 shadow-lg shadow-blue-500/20">
@@ -149,7 +149,7 @@ export default function AITUDevBrochure() {
 
             {/* الفريق */}
             <header className="text-center py-20">
-                <h1 className="text-7xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">العقول المبدعة</h1>
+                <h1 className="text-7xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent whitespace-nowrap px-2 py-4">العقول المبدعة</h1>
                 <p className="text-2xl text-gray-300"> AITU Dev - تعرف على الفريق الذي يقف وراء </p>
             </header>
 
