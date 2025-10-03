@@ -3,6 +3,7 @@ import { useBlog } from "@/hooks/useBlog";
 import { useEvents } from "@/hooks/useEvents";
 import { useProjects } from "@/hooks/useProjects";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { useJoinApplications } from "@/hooks/useJoinApplications";
 import { Calendar, TrendingUp, Users, Code } from "lucide-react";
 
 export default function Analytics() {
@@ -12,8 +13,7 @@ export default function Analytics() {
     const { teamMembers, loading: teamLoading, deleteTeamMember } = useTeamMembers()
     const { events, loading: eventsLoading, deleteEvent } = useEvents()
     const { posts: blogs, loading: blogsLoading, deletePost: deleteBlog } = useBlog()
-
-
+    const { applications, loading: applicationsLoading } = useJoinApplications();
 
 
     // Calculate real statistics from database data
@@ -22,6 +22,11 @@ export default function Analytics() {
     const activeMembers = teamMembers.filter(m => m.status === 'active').length
     const upcomingEvents = events.filter(e => !e.isCompleted && new Date(e.date) >= new Date()).length
     const completedEvents = events.filter(e => e.isCompleted).length
+
+    // Calculate join application statistics
+    const totalApplications = applications.length;
+    const pendingApplications = applications.filter((app) => app.status === 'pending').length;
+    const acceptedApplications = applications.filter((app) => app.status === 'accepted').length;
 
 
     // Calculate average project progress
@@ -93,6 +98,20 @@ export default function Analytics() {
                     </p>
                 </CardContent>
             </Card>
+
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Join Applications</CardTitle>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{totalApplications}</div>
+                    <p className="text-xs text-muted-foreground">
+                        {pendingApplications} pending • {acceptedApplications} accepted
+                    </p>
+                </CardContent>
+            </Card>
+
         </div>
 
     )

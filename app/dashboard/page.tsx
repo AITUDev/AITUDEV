@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Activity, Calendar, GitBranch, Globe, Plus, Trash2, X } from 'lucide-react'
+import { Activity, Calendar, Eye, GitBranch, Globe, Plus, Trash2, X } from 'lucide-react'
 
 import { useProjects } from '@/hooks/useProjects'
 import { useTeamMembers } from '@/hooks/useTeamMembers'
@@ -219,7 +219,7 @@ export default function DashboardPage() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {projects.map((project) => (
+                      {projects.slice(0, 2).map((project) => (
                         <div key={project._id} className="flex items-center justify-between p-4 border rounded-lg">
                           <div className="flex items-center space-x-4">
                             {project.image?.url && (
@@ -464,6 +464,23 @@ export default function DashboardPage() {
                   <Link href="/dashboard/members" className="text-blue-600 hover:text-blue-700">View All </Link>
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Join Members</CardTitle>
+                      <CardDescription>Active join members</CardDescription>
+                    </div>
+                    <Link href="/dashboard/new-join" className="text-blue-600 hover:text-blue-700">
+                      <Eye className="h-4 w-4 mr-2" />
+                      See All
+                    </Link>
+                  </div>
+                </CardHeader>
+
+              </Card>
+
 
               {/* Recent Activity */}
               <Card>

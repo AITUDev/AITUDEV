@@ -8,24 +8,30 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, Users, Code, Lightbulb, Award, ArrowRight } from 'lucide-react'
+import { CheckCircle, Users, Code, Lightbulb, Award, ArrowRight, Loader2, AlertCircle, PartyPopper } from 'lucide-react'
 import { useState } from "react"
 
+const initialFormData = {
+  fullName: '',
+  email: '',
+  phone: '',
+  specializedIn: '',
+  year: '',
+  major: '',
+  specialization: '',
+  experience: '',
+  motivation: '',
+  portfolio: '',
+  availability: [] as string[],
+  agreeTerms: false
+};
+
 export default function JoinPage() {
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    studentId: '',
-    year: '',
-    major: '',
-    specialization: '',
-    experience: '',
-    motivation: '',
-    portfolio: '',
-    availability: [],
-    agreeTerms: false
-  })
+  const [formData, setFormData] = useState(initialFormData);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string | null>>({});
 
   const requirements = [
     "Currently enrolled at Assiut International Technological University",
@@ -73,10 +79,103 @@ export default function JoinPage() {
     "Project Management"
   ]
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle form submission
-    console.log('Form submitted:', formData)
+  const availabilityOptions = ['Weekday Evenings', 'Weekend Mornings', 'Weekend Afternoons', 'Online Meetings', 'Workshops', 'Competitions'];
+
+  const handleAvailabilityChange = (checked: boolean, time: string) => {
+    setFormData(prev => {
+      if (checked) {
+        return { ...prev, availability: [...prev.availability, time] };
+      } else {
+        return { ...prev, availability: prev.availability.filter(item => item !== time) };
+      }
+    });
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    setFormErrors({}); // Clear previous errors
+
+    const newErrors: Record<string, string> = {};
+
+    // Required field validation
+    if (!formData.fullName.trim()) newErrors.fullName = 'Full Name is required.';
+    if (!formData.email.trim()) newErrors.email = 'Email Address is required.';
+    if (!formData.phone.trim()) newErrors.phone = 'Phone Number is required.';
+    if (!formData.specializedIn.trim()) newErrors.specializedIn = 'Specialization is required.';
+    if (!formData.year) newErrors.year = 'Academic Year is required.';
+    if (!formData.major) newErrors.major = 'Major is required.';
+    if (!formData.specialization) newErrors.specialization = 'Area of Interest is required.';
+    if (!formData.experience) newErrors.experience = 'Programming Experience is required.';
+    if (!formData.motivation.trim()) newErrors.motivation = 'Motivation is required.';
+    if (formData.availability.length === 0) newErrors.availability = 'Please select at least one availability option.';
+    if (!formData.agreeTerms) newErrors.agreeTerms = 'You must agree to the terms and conditions.';
+
+    // Email format validation
+    const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    if (formData.email.trim() && !emailRegex.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address.';
+    }
+
+    // Phone number format validation (basic example, can be more complex)
+    const phoneRegex = /^(\+?\d{1,4}[-.\s]?)?(\(?\d{1,}\)?[-.\s]?)?\d{1,}[-.\s]?\d{1,}[-.\s]?\d{1,}$/;
+    if (formData.phone.trim() && !phoneRegex.test(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(newErrors);
+      setLoading(false);
+      return; // Prevent form submission
+    }
+
+    try {
+      const response = await fetch('/api/join', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'has error');
+      }
+
+      setSuccess(true);
+      setFormData(initialFormData);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="container mx-auto px-4 text-center">
+          <Card className="max-w-2xl mx-auto p-8">
+            <CardHeader>
+              <div className="mx-auto bg-green-100 rounded-full p-4 w-20 h-20 flex items-center justify-center mb-4">
+                <PartyPopper className="h-10 w-10 text-green-600" />
+              </div>
+              <CardTitle className="text-3xl">Application Submitted!</CardTitle>
+              <CardDescription className="text-lg text-gray-600 mt-2">
+                Thank you for your interest in joining AITU Dev. We have received your application and will get back to you soon.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => setSuccess(false)}>Submit Another Application</Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -84,7 +183,7 @@ export default function JoinPage() {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="max-w-4xl mx-auto text-center mb-16">
-          <h1 className="text-4xl font-bold mb-6 text-slate-900">Join AITU Dev(Soooon)</h1>
+          <h1 className="text-4xl font-bold mb-6 text-slate-900">Join AITU Dev</h1>
           <p className="text-xl text-gray-600 leading-relaxed">
             Ready to be part of an innovative tech community? Join us and accelerate your journey 
             in technology while making lasting connections and building amazing projects.
@@ -135,18 +234,21 @@ export default function JoinPage() {
                     <Badge variant="outline">Python</Badge>
                     <Badge variant="outline">Java</Badge>
                     <Badge variant="outline">C++</Badge>
+                    <Badge variant="outline">C#</Badge>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline">React</Badge>
                     <Badge variant="outline">Node.js</Badge>
                     <Badge variant="outline">Flutter</Badge>
                     <Badge variant="outline">Django</Badge>
+                    <Badge variant="outline">React Native</Badge>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline">Git</Badge>
                     <Badge variant="outline">SQL</Badge>
                     <Badge variant="outline">Linux</Badge>
                     <Badge variant="outline">AWS</Badge>
+                    <Badge variant="outline">Azure</Badge>
                   </div>
                   <p className="text-sm text-gray-600 mt-4">
                     Don't worry if you don't have all these skills - we'll help you learn!
@@ -170,6 +272,16 @@ export default function JoinPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {error && (
+                  <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-md flex items-start gap-3 text-right">
+                    <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium">Error</p>
+                      <p className="text-sm">{error}</p>
+                    </div>
+                  </div>
+                )}
+                
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Personal Information */}
                   <div className="grid md:grid-cols-2 gap-4">
@@ -178,12 +290,15 @@ export default function JoinPage() {
                       <Input
                         id="fullName"
                         value={formData.fullName}
-                        onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                        onChange={(e) => {
+                          setFormData({...formData, fullName: e.target.value});
+                          setFormErrors(prev => ({...prev, fullName: null}));
+                        }}
                         placeholder="Enter your full name"
                         required
-                        readOnly
-
+                        disabled={loading}
                       />
+                      {formErrors.fullName && <p className="text-red-500 text-sm mt-1">{formErrors.fullName}</p>}
                     </div>
                     <div>
                       <Label htmlFor="email">Email Address *</Label>
@@ -191,12 +306,15 @@ export default function JoinPage() {
                         id="email"
                         type="email"
                         value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        onChange={(e) => {
+                          setFormData({...formData, email: e.target.value});
+                          setFormErrors(prev => ({...prev, email: null}));
+                        }}
                         placeholder="your.email@aitu.edu.eg"
                         required
-                        readOnly
-
+                        disabled={loading}
                       />
+                      {formErrors.email && <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>}
                     </div>
                   </div>
 
@@ -206,23 +324,30 @@ export default function JoinPage() {
                       <Input
                         id="phone"
                         value={formData.phone}
-                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                        placeholder="+20 xxx xxx xxxx"
+                        onChange={(e) => {
+                          setFormData({...formData, phone: e.target.value});
+                          setFormErrors(prev => ({...prev, phone: null}));
+                        }}
+                        placeholder="+20 101 234 5678"
                         required
-                        readOnly
+                        disabled={loading}
                       />
+                      {formErrors.phone && <p className="text-red-500 text-sm mt-1">{formErrors.phone}</p>}
                     </div>
                     <div>
-                      <Label htmlFor="studentId">Student ID *</Label>
+                      <Label htmlFor="studentId">Specialized in *</Label>
                       <Input
-                        id="studentId"
-                        value={formData.studentId}
-                        onChange={(e) => setFormData({...formData, studentId: e.target.value})}
-                        placeholder="Your university student ID"
+                        id="specializedIn"
+                        value={formData.specializedIn}
+                        onChange={(e) => {
+                          setFormData({...formData, specializedIn: e.target.value});
+                          setFormErrors(prev => ({...prev, specializedIn: null}));
+                        }}
+                        placeholder="Specialized in..."
                         required
-                        readOnly
-
+                        disabled={loading}
                       />
+                      {formErrors.specializedIn && <p className="text-red-500 text-sm mt-1">{formErrors.specializedIn}</p>}
                     </div>
                   </div>
 
@@ -230,7 +355,14 @@ export default function JoinPage() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="year">Academic Year *</Label>
-                      <Select onValueChange={(value) => setFormData({...formData, year: value})}>
+                      <Select 
+                        value={formData.year}
+                        onValueChange={(value) => {
+                          setFormData({...formData, year: value});
+                          setFormErrors(prev => ({...prev, year: null}));
+                        }}
+                        disabled={loading}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select your year" />
                         </SelectTrigger>
@@ -242,10 +374,18 @@ export default function JoinPage() {
                           <SelectItem value="graduate">Graduate Student</SelectItem>
                         </SelectContent>
                       </Select>
+                      {formErrors.year && <p className="text-red-500 text-sm mt-1">{formErrors.year}</p>}
                     </div>
                     <div>
                       <Label htmlFor="major">Major *</Label>
-                      <Select onValueChange={(value) => setFormData({...formData, major: value})}>
+                      <Select 
+                        value={formData.major}
+                        onValueChange={(value) => {
+                          setFormData({...formData, major: value});
+                          setFormErrors(prev => ({...prev, major: null}));
+                        }}
+                        disabled={loading}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select your major" />
                         </SelectTrigger>
@@ -258,30 +398,46 @@ export default function JoinPage() {
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
+                      {formErrors.major && <p className="text-red-500 text-sm mt-1">{formErrors.major}</p>}
                     </div>
                   </div>
 
                   {/* Specialization */}
                   <div>
                     <Label htmlFor="specialization">Area of Interest *</Label>
-                    <Select onValueChange={(value) => setFormData({...formData, specialization: value})}>
+                    <Select 
+                      value={formData.specialization}
+                      onValueChange={(value) => {
+                        setFormData({...formData, specialization: value});
+                        setFormErrors(prev => ({...prev, specialization: null}));
+                      }}
+                      disabled={loading}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select your primary area of interest" />
                       </SelectTrigger>
                       <SelectContent>
                         {specializations.map((spec, index) => (
-                          <SelectItem key={index} value={spec.toLowerCase().replace(/\s+/g, '-')}>
+                          <SelectItem key={index} value={spec}>
                             {spec}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                    {formErrors.specialization && <p className="text-red-500 text-sm mt-1">{formErrors.specialization}</p>}
                   </div>
 
                   {/* Experience */}
                   <div>
                     <Label htmlFor="experience">Programming Experience *</Label>
-                    <Select onValueChange={(value) => setFormData({...formData, experience: value})}>
+                    <Select 
+                      value={formData.experience}
+                      onValueChange={(value) => {
+                        setFormData({...formData, experience: value});
+                        setFormErrors(prev => ({...prev, experience: null}));
+                      }}
+                      disabled={loading}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select your experience level" />
                       </SelectTrigger>
@@ -291,6 +447,7 @@ export default function JoinPage() {
                         <SelectItem value="advanced">Advanced (2+ years)</SelectItem>
                       </SelectContent>
                     </Select>
+                    {formErrors.experience && <p className="text-red-500 text-sm mt-1">{formErrors.experience}</p>}
                   </div>
 
                   {/* Motivation */}
@@ -299,13 +456,16 @@ export default function JoinPage() {
                     <Textarea
                       id="motivation"
                       value={formData.motivation}
-                      onChange={(e) => setFormData({...formData, motivation: e.target.value})}
+                      onChange={(e) => {
+                        setFormData({...formData, motivation: e.target.value});
+                        setFormErrors(prev => ({...prev, motivation: null}));
+                      }}
                       placeholder="Tell us about your motivation, goals, and what you hope to contribute to the team..."
                       rows={4}
                       required
-                      readOnly
-
+                      disabled={loading}
                     />
+                    {formErrors.motivation && <p className="text-red-500 text-sm mt-1">{formErrors.motivation}</p>}
                   </div>
 
                   {/* Portfolio */}
@@ -316,22 +476,30 @@ export default function JoinPage() {
                       value={formData.portfolio}
                       onChange={(e) => setFormData({...formData, portfolio: e.target.value})}
                       placeholder="https://github.com/yourusername or your portfolio website"
-                      readOnly
-
+                      disabled={loading}
                     />
                   </div>
 
                   {/* Availability */}
                   <div>
-                    <Label className="text-base font-medium">Availability (Select all that apply)</Label>
+                    <Label className="text-base font-medium">Availability (Select all that apply) *</Label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
-                      {['Weekday Evenings', 'Weekend Mornings', 'Weekend Afternoons', 'Online Meetings', 'Workshops', 'Competitions'].map((time) => (
+                      {availabilityOptions.map((time) => (
                         <div key={time} className="flex items-center space-x-2">
-                          <Checkbox id={time} />
+                          <Checkbox 
+                            id={time} 
+                            checked={formData.availability.includes(time)}
+                            onCheckedChange={(checked) => {
+                              handleAvailabilityChange(checked as boolean, time);
+                              setFormErrors(prev => ({...prev, availability: null}));
+                            }}
+                            disabled={loading}
+                          />
                           <Label htmlFor={time} className="text-sm">{time}</Label>
                         </div>
                       ))}
                     </div>
+                    {formErrors.availability && <p className="text-red-500 text-sm mt-1">{formErrors.availability}</p>}
                   </div>
 
                   {/* Terms Agreement */}
@@ -339,13 +507,18 @@ export default function JoinPage() {
                     <Checkbox 
                       id="terms" 
                       checked={formData.agreeTerms}
-                      onCheckedChange={(checked) => setFormData({...formData, agreeTerms: checked as boolean})}
+                      onCheckedChange={(checked) => {
+                        setFormData({...formData, agreeTerms: checked as boolean});
+                        setFormErrors(prev => ({...prev, agreeTerms: null}));
+                      }}
+                      disabled={loading}
                       required 
                     />
                     <Label htmlFor="terms" className="text-sm leading-relaxed">
                       I agree to the team's code of conduct and commit to actively participating in team activities. 
                       I understand that membership requires regular attendance and contribution to team projects. *
                     </Label>
+                    {formErrors.agreeTerms && <p className="text-red-500 text-sm mt-1">{formErrors.agreeTerms}</p>}
                   </div>
 
                   {/* Submit Button */}
@@ -353,10 +526,19 @@ export default function JoinPage() {
                     type="submit" 
                     size="lg" 
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                    disabled={!formData.agreeTerms}
+                    disabled={loading}
                   >
-                    Submit Application
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        Submit Application
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </>
+                    )}
                   </Button>
                 </form>
               </CardContent>
