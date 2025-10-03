@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import AuthCheck from '../authCheck';
 
 interface Application {
   _id: string;
@@ -89,6 +90,8 @@ export default function JoinApplicationsTable() {
   };
 
   return (
+    <AuthCheck>
+
     <Card className="p-6">
       <h2 className="text-2xl font-bold mb-4">طلبات الانضمام</h2>
 
@@ -145,5 +148,7 @@ export default function JoinApplicationsTable() {
         </div>
       )}
     </Card>
+    </AuthCheck>
+
   );
 }
