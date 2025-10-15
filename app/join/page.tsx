@@ -1,4 +1,5 @@
-"use client"
+import Link from "next/link"
+/* "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -25,9 +26,9 @@ const initialFormData = {
   availability: [] as string[],
   agreeTerms: false
 };
-
+ */
 export default function JoinPage() {
-  const [formData, setFormData] = useState(initialFormData);
+ /*  const [formData, setFormData] = useState(initialFormData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -177,11 +178,38 @@ export default function JoinPage() {
       </div>
     )
   }
-
+ */
   return (
-    <div className="min-h-screen py-16">
+
+<div className="flex items-center justify-center min-h-screen bg-gray-50 font-sans p-4">
+      
+      {/* Main Content Box */}
+      <div className="bg-white p-8 sm:p-12 rounded-xl shadow-2xl max-w-sm w-full text-center border-t-4 border-red-500">
+        
+        {/* Title */}
+        <h1 className="text-3xl font-bold text-red-600 mb-4 border-b-2 border-red-200 pb-3">
+          Submissions Are Now Closed
+        </h1>
+        
+        {/* Message */}
+        <p className="text-gray-600 text-lg mb-8">
+          The submission period for this cycle has ended. Thank you for your interest.
+        </p>
+        
+        {/* Link to Homepage */}
+        <Link 
+          href="/" 
+          className="inline-block w-full py-3 px-6 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+        >
+          Go to Homepage
+        </Link>
+      </div>
+    </div>
+
+
+/*     <div className="min-h-screen py-16">
       <div className="container mx-auto px-4">
-        {/* Header */}
+    
         <div className="max-w-4xl mx-auto text-center mb-16">
           <h1 className="text-4xl font-bold mb-6 text-slate-900">Join AITU Dev</h1>
           <p className="text-xl text-gray-600 leading-relaxed">
@@ -190,7 +218,7 @@ export default function JoinPage() {
           </p>
         </div>
 
-        {/* Benefits Section */}
+ 
         <section className="mb-16">
           <h2 className="text-3xl font-bold text-center mb-12 text-slate-900">Why Join Us?</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
@@ -210,7 +238,7 @@ export default function JoinPage() {
           </div>
         </section>
 
-        {/* Requirements */}
+
         <section className="mb-16 bg-gray-50 py-16 -mx-4 px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-12 text-slate-900">Requirements</h2>
@@ -259,7 +287,7 @@ export default function JoinPage() {
           </div>
         </section>
 
-        {/* Application Form */}
+       
         <section className="mb-16">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-12 text-slate-900">Application Form</h2>
@@ -283,7 +311,6 @@ export default function JoinPage() {
                 )}
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Personal Information */}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="fullName">Full Name *</Label>
@@ -351,7 +378,6 @@ export default function JoinPage() {
                     </div>
                   </div>
 
-                  {/* Academic Information */}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="year">Academic Year *</Label>
@@ -402,7 +428,6 @@ export default function JoinPage() {
                     </div>
                   </div>
 
-                  {/* Specialization */}
                   <div>
                     <Label htmlFor="specialization">Area of Interest *</Label>
                     <Select 
@@ -427,7 +452,6 @@ export default function JoinPage() {
                     {formErrors.specialization && <p className="text-red-500 text-sm mt-1">{formErrors.specialization}</p>}
                   </div>
 
-                  {/* Experience */}
                   <div>
                     <Label htmlFor="experience">Programming Experience *</Label>
                     <Select 
@@ -450,7 +474,6 @@ export default function JoinPage() {
                     {formErrors.experience && <p className="text-red-500 text-sm mt-1">{formErrors.experience}</p>}
                   </div>
 
-                  {/* Motivation */}
                   <div>
                     <Label htmlFor="motivation">Why do you want to join AITU Dev? *</Label>
                     <Textarea
@@ -468,7 +491,6 @@ export default function JoinPage() {
                     {formErrors.motivation && <p className="text-red-500 text-sm mt-1">{formErrors.motivation}</p>}
                   </div>
 
-                  {/* Portfolio */}
                   <div>
                     <Label htmlFor="portfolio">Portfolio/GitHub (Optional)</Label>
                     <Input
@@ -480,7 +502,6 @@ export default function JoinPage() {
                     />
                   </div>
 
-                  {/* Availability */}
                   <div>
                     <Label className="text-base font-medium">Availability (Select all that apply) *</Label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
@@ -502,7 +523,6 @@ export default function JoinPage() {
                     {formErrors.availability && <p className="text-red-500 text-sm mt-1">{formErrors.availability}</p>}
                   </div>
 
-                  {/* Terms Agreement */}
                   <div className="flex items-start space-x-2">
                     <Checkbox 
                       id="terms" 
@@ -521,7 +541,6 @@ export default function JoinPage() {
                     {formErrors.agreeTerms && <p className="text-red-500 text-sm mt-1">{formErrors.agreeTerms}</p>}
                   </div>
 
-                  {/* Submit Button */}
                   <Button 
                     type="submit" 
                     size="lg" 
@@ -546,7 +565,6 @@ export default function JoinPage() {
           </div>
         </section>
 
-        {/* Next Steps */}
         <section className="bg-slate-900 text-white py-16 -mx-4 px-4 rounded-lg">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-8">What Happens Next?</h2>
@@ -582,6 +600,6 @@ export default function JoinPage() {
           </div>
         </section>
       </div>
-    </div>
+    </div> */
   )
 }
