@@ -33,6 +33,13 @@ const nextConfig = {
           // Compression is typically handled by the platform (e.g., Vercel/CDN)
         ],
       },
+      // Suppress 404 for service worker (if not implemented)
+      {
+        source: "/sw.js",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
     ]
   },
   experimental: {
