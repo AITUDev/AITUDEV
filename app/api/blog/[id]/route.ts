@@ -3,8 +3,9 @@ import connectToDB from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { deleteImage } from '@/lib/cloudinary';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   try {
+    const params = await props.params;
     const { id } = params;
 
     if (!ObjectId.isValid(id)) {
@@ -27,8 +28,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   try {
+    const params = await props.params;
     const { id } = params;
 
     if (!ObjectId.isValid(id)) {

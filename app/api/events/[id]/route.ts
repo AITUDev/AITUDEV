@@ -4,10 +4,11 @@ import dbConnect from '@/lib/mongodb';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!ObjectId.isValid(params.id)) {
+    const params = await props.params;
+    if (!params.id || !ObjectId.isValid(params.id)) {
       return NextResponse.json(
         { success: false, error: 'Invalid event ID' },
         { status: 400 }

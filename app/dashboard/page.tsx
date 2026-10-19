@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Activity, Calendar, Eye, GitBranch, Globe, Plus, Trash2, X } from 'lucide-react'
+import { Activity, Calendar, Eye, GitBranch, Globe, Plus, Trash2, X, Users, LayoutDashboard, Shield, Lock } from 'lucide-react'
 
 import { useProjects } from '@/hooks/useProjects'
 import { useTeamMembers } from '@/hooks/useTeamMembers'
@@ -20,6 +20,7 @@ import { AddProjectForm } from '@/components/add-project-form'
 import AuthCheck from './authCheck'
 import Analytics from './analytics'
 import Link from 'next/link'
+import { TeamAccountsManager } from '@/components/dashboard/team-accounts-manager'
 
 interface Activity {
   id: string
@@ -29,20 +30,17 @@ interface Activity {
   type: string
 }
 
-
-
-
 export default function DashboardPage() {
   const { projects, loading: projectsLoading, deleteProject } = useProjects()
   const { teamMembers, loading: teamLoading, deleteTeamMember } = useTeamMembers()
   const { events, loading: eventsLoading, deleteEvent } = useEvents()
   const { posts: blogs, loading: blogsLoading, deletePost: deleteBlog } = useBlog()
 
+  const [activeTab, setActiveTab] = useState<'overview' | 'accounts'>('overview')
   const [showAddProject, setShowAddProject] = useState(false)
   const [showAddMember, setShowAddMember] = useState(false)
   const [showAddEvent, setShowAddEvent] = useState(false)
   const [showAddBlog, setShowAddBlog] = useState(false)
-
 
   // Calculate average project progress
   const totalProgress = projects.reduce((sum, project) => sum + (project.progress || 0), 0)
@@ -98,31 +96,10 @@ export default function DashboardPage() {
     })
   })
 
-  // Add recent events (last 2)
-  const recentEvents = events
-    .sort((a, b) => new Date(b.createdAt || b.updatedAt).getTime() - new Date(a.createdAt || a.updatedAt).getTime())
-    .slice(0, 2)
-
-  recentEvents.forEach(event => {
-    const timeAgo = getTimeAgo(event.createdAt || event.updatedAt)
-    recentActivities.push({
-      id: `event-${event._id}`,
-      user: 'AITU Dev Team',
-      action: `${event.isCompleted ? 'completed' : 'scheduled'} event "${event.title}"`,
-      time: timeAgo,
-      type: 'event'
-    })
-  })
-
-  // Sort activities by most recent and limit to 5
   const sortedActivities = recentActivities
-    .sort((a, b) => {
-      // Sort by creation time (most recent first)
-      return new Date(b.time).getTime() - new Date(a.time).getTime()
-    })
+    .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
     .slice(0, 5)
 
-  // Helper function to calculate time ago
   function getTimeAgo(dateString: string): string {
     const date = new Date(dateString)
     const now = new Date()
@@ -176,350 +153,232 @@ export default function DashboardPage() {
     }
   }
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority?.toLowerCase()) {
-      case 'high': return 'bg-red-100 text-red-800'
-      case 'medium': return 'bg-yellow-100 text-yellow-800'
-      case 'low': return 'bg-green-100 text-green-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
-
   return (
     <AuthCheck>
       <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          {/* Overview Cards */}
-          <Analytics />
+        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 space-y-6">
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Projects Section */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Projects */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle>Projects</CardTitle>
-                      <CardDescription>Manage your development projects</CardDescription>
-                    </div>
-                    <Button onClick={() => setShowAddProject(true)} size="sm">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Project
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {projectsLoading ? (
-                    <div className="text-center py-4">Loading projects...</div>
-                  ) : projects.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                      No projects yet. Create your first project!
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {projects.slice(0, 2).map((project) => (
-                        <div key={project._id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex items-center space-x-4">
-                            {project.image?.url && (
-                              <Image
-                                src={project.image.url}
-                                alt={project.name}
-                                width={80}
-                                height={80}
-                                className="rounded-lg object-cover"
-                              />
-                            )}
-                            <div>
-                              <h3 className="font-medium">{project.name}</h3>
-                              <p className="text-sm text-gray-600 line-clamp-2">{project.description}</p>
-                              <div className="flex items-center space-x-2 mt-2">
-                                <Badge className={getStatusColor(project.status)}>
-                                  {project.status}
-                                </Badge>
-                                <div className="flex items-center space-x-1">
-                                  <Progress value={project.progress} className="w-20" />
-                                  <span className="text-xs text-gray-500">{project.progress}%</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            {project.githubUrl && (
-                              <Button variant="outline" size="sm" asChild>
-                                <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                                  <GitBranch className="h-4 w-4" />
-                                </a>
-                              </Button>
-                            )}
-                            {project.liveUrl && (
-                              <Button variant="outline" size="sm" asChild>
-                                <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                                  <Globe className="h-4 w-4" />
-                                </a>
-                              </Button>
-                            )}
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDeleteProject(project._id)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <Link href="/dashboard/projects" className="text-blue-600 hover:text-blue-700">View All </Link>
-                </CardContent>
-              </Card>
+          {/* Navigation Bar Tabs */}
+          <div className="flex items-center justify-between bg-white p-2 rounded-xl border shadow-sm px-4">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  activeTab === 'overview'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Overview & Content</span>
+              </button>
 
-              {/* Events */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle>Events</CardTitle>
-                      <CardDescription>Upcoming events and deadlines</CardDescription>
-                    </div>
-                    <Button onClick={() => setShowAddEvent(true)} size="sm">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Event
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {eventsLoading ? (
-                    <div className="text-center py-4">Loading events...</div>
-                  ) : events.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                      No events scheduled. Create your first event!
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {events.slice(0, 5).map((event) => (
-                        <div key={event._id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex items-center space-x-4">
-                            {event.image?.url && (
-                              <Image
-                                src={event.image.url}
-                                alt={event.title}
-                                width={48}
-                                height={48}
-                                className="rounded-lg object-cover"
-                              />
-                            )}
-                            <div>
-                              <h3 className="font-medium">{event.title}</h3>
-                              <p className="text-sm text-gray-600">{event.description}</p>
-                              <div className="flex items-center space-x-2 mt-2">
-                                <Badge className={getPriorityColor(event.priority)}>
-                                  {event.priority}
-                                </Badge>
-                                <div className="flex items-center space-x-1 text-sm text-gray-500">
-                                  <Calendar className="h-4 w-4" />
-                                  {new Date(event.date).toLocaleDateString()}
-                                </div>
-                                {event.location && (
-                                  <span className="text-sm text-gray-500">{event.location}</span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteEvent(event._id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <Link href="/dashboard/events" className="text-blue-600 hover:text-blue-700">View All </Link>
-                </CardContent>
-              </Card>
-              {/* Blog */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle>Blog</CardTitle>
-                      <CardDescription>Upcoming blog posts</CardDescription>
-                    </div>
-                    <Button onClick={() => setShowAddBlog(true)} size="sm">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Blog
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {blogsLoading ? (
-                    <div className="text-center py-4">Loading blog posts...</div>
-                  ) : blogs.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                      No blog posts scheduled. Create your first blog post!
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {blogs.slice(0, 5).map((blog: BlogPost) => (
-                        <div key={blog._id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex items-center space-x-4">
-                            {blog.images && blog.images.length > 0 && (
-                              <Image
-                                src={blog.images[0].url}
-                                alt={blog.title}
-                                width={48}
-                                height={48}
-                                className="rounded-lg object-cover"
-                              />
-                            )}
-                            <div>
-                              <h3 className="font-medium">{blog.title}</h3>
-                              <p className="text-sm text-gray-600">{blog.excerpt}</p>
-                              <div className="flex items-center space-x-2 mt-2">
-                                <Badge variant="secondary">
-                                  {blog.category}
-                                </Badge>
-                                <div className="flex items-center space-x-1 text-sm text-gray-500">
-                                  <Calendar className="h-4 w-4" />
-                                  {new Date(blog.createdAt).toLocaleDateString()}
-                                </div>
-                                <span className="text-sm text-gray-500">
-                                  {blog.readTime} read
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteBlog(blog._id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <Link href="/dashboard/blog" className="text-blue-600 hover:text-blue-700">View All </Link>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Team Members */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle>Team Members</CardTitle>
-                      <CardDescription>Active team members</CardDescription>
-                    </div>
-                    <Button onClick={() => setShowAddMember(true)} size="sm">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Member
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {teamLoading ? (
-                    <div className="text-center py-4">Loading team...</div>
-                  ) : teamMembers.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                      No team members yet. Add your first member!
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {teamMembers.slice(0, 5).map((member) => (
-                        <div key={member._id} className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <Avatar>
-                              <AvatarImage src={member.avatar?.url} alt={member.name} />
-                              <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="font-medium">{member.name}</p>
-                              <p className="text-sm text-gray-600">{member.role}</p>
-                            </div>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteMember(member._id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>)}
-                  <Link href="/dashboard/members" className="text-blue-600 hover:text-blue-700">View All </Link>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle>Join Members</CardTitle>
-                      <CardDescription>Active join members</CardDescription>
-                    </div>
-                    <Link href="/dashboard/new-join" className="text-blue-600 hover:text-blue-700">
-                      <Eye className="h-4 w-4 mr-2" />
-                      See All
-                    </Link>
-                  </div>
-                </CardHeader>
-
-              </Card>
-
-
-              {/* Recent Activity */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                  <CardDescription>Latest actions and updates</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {sortedActivities.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                      No recent activity. Start by adding projects, team members, or events!
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {sortedActivities.map((activity) => (
-                        <div key={activity.id} className="flex items-center space-x-3">
-                          <div className={`w-2 h-2 rounded-full ${activity.type === 'project' ? 'bg-blue-600' :
-                            activity.type === 'team' ? 'bg-green-600' :
-                              'bg-purple-600'
-                            }`}></div>
-                          <div className="flex-1">
-                            <p className="text-sm">
-                              <span className="font-medium">{activity.user}</span> {activity.action}
-                            </p>
-                            <p className="text-xs text-gray-500">{activity.time}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-              <Card>
-                <CardTitle>Our service</CardTitle>
-                <Link href="/dashboard/our-service" className="text-blue-600 hover:text-blue-700">View All service </Link>
-
-              </Card>
+              <button
+                onClick={() => setActiveTab('accounts')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  activeTab === 'accounts'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                <Shield className="h-4 w-4" />
+                <span>Team Member Accounts</span>
+              </button>
             </div>
           </div>
+
+          {activeTab === 'accounts' ? (
+            <TeamAccountsManager />
+          ) : (
+            <div className="space-y-6">
+              {/* Overview Cards */}
+              <Analytics />
+
+              {/* Main Content Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Projects Section */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Projects */}
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle>Projects</CardTitle>
+                          <CardDescription>Manage your development projects</CardDescription>
+                        </div>
+                        <Button onClick={() => setShowAddProject(true)} size="sm">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Project
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {projectsLoading ? (
+                        <div className="text-center py-4">Loading projects...</div>
+                      ) : projects.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                          No projects yet. Create your first project!
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {projects.slice(0, 2).map((project) => (
+                            <div key={project._id} className="flex items-center justify-between p-4 border rounded-lg">
+                              <div className="flex items-center space-x-4">
+                                {project.image?.url && (
+                                  <Image
+                                    src={project.image.url}
+                                    alt={project.name}
+                                    width={80}
+                                    height={80}
+                                    className="rounded-lg object-cover"
+                                  />
+                                )}
+                                <div>
+                                  <h3 className="font-medium">{project.name}</h3>
+                                  <p className="text-sm text-gray-600 line-clamp-2">{project.description}</p>
+                                  <div className="flex items-center space-x-2 mt-2">
+                                    <Badge className={getStatusColor(project.status)}>
+                                      {project.status}
+                                    </Badge>
+                                    <div className="flex items-center space-x-1">
+                                      <Progress value={project.progress} className="w-20" />
+                                      <span className="text-xs text-gray-500">{project.progress}%</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <Button variant="ghost" size="sm" onClick={() => handleDeleteProject(project._id)}>
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Team Members Section */}
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle>Team Members</CardTitle>
+                          <CardDescription>Manage your team roster</CardDescription>
+                        </div>
+                        <Button onClick={() => setShowAddMember(true)} size="sm">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Member
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {teamLoading ? (
+                        <div className="text-center py-4">Loading team members...</div>
+                      ) : teamMembers.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                          No team members yet. Add your first team member!
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {teamMembers.slice(0, 4).map((member) => (
+                            <div key={member._id} className="flex items-center justify-between p-3 border rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <Avatar className="h-10 w-10">
+                                  {member.avatar?.url ? (
+                                    <AvatarImage src={member.avatar.url} alt={member.name} />
+                                  ) : null}
+                                  <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <h4 className="text-sm font-medium">{member.name}</h4>
+                                  <p className="text-xs text-gray-500">{member.role}</p>
+                                </div>
+                              </div>
+                              <Button variant="ghost" size="sm" onClick={() => handleDeleteMember(member._id)}>
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Events & Blogs Side Section */}
+                <div className="space-y-6">
+                  {/* Events */}
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle>Events</CardTitle>
+                          <CardDescription>Upcoming workshops & events</CardDescription>
+                        </div>
+                        <Button onClick={() => setShowAddEvent(true)} size="sm" variant="outline">
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {eventsLoading ? (
+                        <div className="text-center py-4 text-sm text-gray-500">Loading events...</div>
+                      ) : events.length === 0 ? (
+                        <div className="text-center py-4 text-sm text-gray-500">No events found.</div>
+                      ) : (
+                        <div className="space-y-3">
+                          {events.slice(0, 3).map((event) => (
+                            <div key={event._id} className="flex items-center justify-between p-3 border rounded-lg text-sm">
+                              <div>
+                                <h4 className="font-medium text-gray-900">{event.title}</h4>
+                                <p className="text-xs text-gray-500">{new Date(event.date).toLocaleDateString()}</p>
+                              </div>
+                              <Button variant="ghost" size="sm" onClick={() => handleDeleteEvent(event._id)}>
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Blogs */}
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle>Blog Posts</CardTitle>
+                          <CardDescription>Published articles</CardDescription>
+                        </div>
+                        <Button onClick={() => setShowAddBlog(true)} size="sm" variant="outline">
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {blogsLoading ? (
+                        <div className="text-center py-4 text-sm text-gray-500">Loading blogs...</div>
+                      ) : blogs.length === 0 ? (
+                        <div className="text-center py-4 text-sm text-gray-500">No blog posts found.</div>
+                      ) : (
+                        <div className="space-y-3">
+                          {blogs.slice(0, 3).map((blog) => (
+                            <div key={blog._id} className="flex items-center justify-between p-3 border rounded-lg text-sm">
+                              <span className="font-medium text-gray-900 truncate">{blog.title}</span>
+                              <Button variant="ghost" size="sm" onClick={() => handleDeleteBlog(blog._id)}>
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Modals */}
@@ -570,6 +429,7 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
+
         {showAddBlog && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">

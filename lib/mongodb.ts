@@ -1,9 +1,9 @@
 import { MongoClient, Db } from 'mongodb';
 
-const MONGODB_URI = process.env.MONGODB_URI!;
+const MONGODB_URI = process.env.MONGODB_URI || '';
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  console.warn('⚠️ Warning: MONGODB_URI is not defined in .env.local');
 }
 
 /**
@@ -18,6 +18,10 @@ if (!cached) {
 }
 
 async function dbConnect(): Promise<Db> {
+  if (!MONGODB_URI || MONGODB_URI.includes('<db_username>')) {
+    throw new Error('MONGODB_URI in .env.local contains a placeholder <db_username>. Please replace it with your actual MongoDB username.');
+  }
+
   if (cached.conn) {
     return cached.conn;
   }
@@ -30,7 +34,7 @@ async function dbConnect(): Promise<Db> {
     };
 
     cached.promise = MongoClient.connect(MONGODB_URI, opts).then((client) => {
-      return client.db();
+      return client.db(process.env.MONGODB_DB_NAME || 'aitudev');
     });
   }
 

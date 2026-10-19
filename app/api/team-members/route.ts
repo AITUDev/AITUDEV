@@ -44,16 +44,22 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     
     const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
+    const email = (formData.get('email') as string || '').toLowerCase().trim();
     const role = formData.get('role') as string;
+    const accountRole = (formData.get('accountRole') as string) || 'member';
+    const password = formData.get('password') as string;
     const status = formData.get('status') as string;
     const skills = JSON.parse(formData.get('skills') as string || '[]');
     const bio = formData.get('bio') as string;
     const socialLinks = JSON.parse(formData.get('socialLinks') as string || '{}');
     const avatar = formData.get('avatar') as File;
 
+    if (!name || !email) {
+      return NextResponse.json({ success: false, error: 'Name and email are required' }, { status: 400 });
+    }
+
     let avatarData = undefined;
-    if (avatar && avatar.size > 0) {
+    if (avatar && typeof avatar !== 'string' && avatar.size > 0) {
       const bytes = await avatar.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const base64 = `data:${avatar.type};base64,${buffer.toString('base64')}`;
@@ -65,11 +71,23 @@ export async function POST(request: NextRequest) {
       };
     }
 
+    let passwordHash = undefined;
+    if (password && password.trim().length >= 4) {
+      const { hashPassword } = await import('@/lib/auth');
+      passwordHash = await hashPassword(password.trim());
+    } else {
+      // Default password if creating account
+      const { hashPassword } = await import('@/lib/auth');
+      passwordHash = await hashPassword('aitu123456');
+    }
+
     const memberData = {
       name,
       email,
       role,
-      status: status as 'active' | 'inactive' | 'away',
+      accountRole: accountRole as 'admin' | 'lead' | 'member',
+      passwordHash,
+      status: (status as 'active' | 'inactive' | 'away') || 'active',
       skills,
       bio,
       socialLinks,
@@ -79,7 +97,8 @@ export async function POST(request: NextRequest) {
     };
 
     const result = await db.collection('teammembers').insertOne(memberData);
-    const teamMember = { _id: result.insertedId, ...memberData };
+    const { passwordHash: _, ...safeMember } = memberData;
+    const teamMember = { _id: result.insertedId, ...safeMember };
     
     return NextResponse.json({ success: true, data: teamMember }, { status: 201 });
   } catch (error) {
@@ -98,8 +117,10 @@ export async function PUT(request: NextRequest) {
     
     const id = formData.get('id') as string;
     const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
+    const email = (formData.get('email') as string || '').toLowerCase().trim();
     const role = formData.get('role') as string;
+    const accountRole = formData.get('accountRole') as string;
+    const password = formData.get('password') as string;
     const status = formData.get('status') as string;
     const skills = JSON.parse(formData.get('skills') as string || '[]');
     const bio = formData.get('bio') as string;
@@ -123,9 +144,7 @@ export async function PUT(request: NextRequest) {
 
     let avatarData = existingMember.avatar;
 
-    // Handle new avatar upload
-    if (avatar && avatar.size > 0) {
-      // Delete old avatar if it exists
+    if (avatar && typeof avatar !== 'string' && avatar.size > 0) {
       if (existingMember.avatar?.publicId) {
         await deleteImage(existingMember.avatar.publicId);
       }
@@ -141,25 +160,41 @@ export async function PUT(request: NextRequest) {
       };
     }
 
-    const updateData = {
-      name,
-      email,
-      role,
-      status: status as 'active' | 'inactive' | 'away',
-      skills,
-      bio,
-      socialLinks,
+    let passwordHash = existingMember.passwordHash;
+    if (password && password.trim().length >= 4) {
+      const { hashPassword } = await import('@/lib/auth');
+      passwordHash = await hashPassword(password.trim());
+    }
+
+    const updateData: any = {
+      name: name || existingMember.name,
+      email: email || existingMember.email,
+      role: role || existingMember.role,
+      status: (status as 'active' | 'inactive' | 'away') || existingMember.status || 'active',
+      skills: skills.length > 0 ? skills : existingMember.skills,
+      bio: bio !== undefined ? bio : existingMember.bio,
+      socialLinks: Object.keys(socialLinks).length > 0 ? socialLinks : existingMember.socialLinks,
       avatar: avatarData,
       updatedAt: new Date(),
     };
+
+    if (accountRole) {
+      updateData.accountRole = accountRole;
+    }
+    if (passwordHash) {
+      updateData.passwordHash = passwordHash;
+    }
 
     await db.collection('teammembers').updateOne(
       { _id: new ObjectId(id) },
       { $set: updateData }
     );
 
-    const teamMember = await db.collection('teammembers').findOne({ _id: new ObjectId(id) });
-    return NextResponse.json({ success: true, data: teamMember });
+    const updatedMember = await db.collection('teammembers').findOne({ _id: new ObjectId(id) });
+    if (updatedMember) {
+      delete updatedMember.passwordHash;
+    }
+    return NextResponse.json({ success: true, data: updatedMember });
   } catch (error) {
     console.error('Error updating team member:', error);
     return NextResponse.json(
